@@ -1,7 +1,5 @@
 #include "raylib.h"
 #include "screen.h"
-#include "rlgl.h"
-#include "raymath.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -15,7 +13,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
-    int screen = 2;
+    int screen = 1;
     vector<Rectangle> Templates;
 
     InitWindow(screenWidth, screenHeight, "Main File");
@@ -45,7 +43,7 @@ int main(void)
             
             if(screen == 1){// Screen 1 is being loaded onto the screen
                 
-                screen1(Exit, Templates);
+                screen1(Exit, Templates, camera);
                 
             }else if(screen == 2){
                 
