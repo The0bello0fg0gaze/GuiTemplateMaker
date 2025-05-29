@@ -39,15 +39,15 @@ void screen1(Rectangle Exit, vector<Rectangle> &Templates, Camera2D &camera){
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             int y = int(Templates.size() / 8);
             int x = int(Templates.size() % 8);
-            Rectangle temp = {225*x+75,250*y+125,150,200};
+            Rectangle temp = {225*x+75,250*y+120,150,200};
             Templates.push_back(temp);
 
         }
     }
-    float wheel = GetMouseWheelMove()*15;
+    float wheel = GetMouseWheelMove()*40;
     if(wheel != 0 ){
-        camera.target.y = Clamp(camera.target.y + wheel, 150, 500);
-        NewTemplate.y = Clamp(NewTemplate.y + wheel, 150, 500);
+        camera.target.y = Clamp(camera.target.y - wheel, 0, int(Templates.size() / 8)*250);
+        NewTemplate.y = Clamp(NewTemplate.y - wheel, 0, int(Templates.size() / 8)*250);
     }
     
     EndMode2D();
