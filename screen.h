@@ -5,12 +5,31 @@
 #include <iostream>
 using namespace std;
 
-void screen1(Rectangle Exit, vector<Rectangle> &Templates, Camera2D &camera);
-void screen2(Rectangle Exit, Camera2D &camera);
+void set(Rectangle exit ,bool &tempmenu ,vector<Rectangle> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu);
+void screen1();
+void screen2();
+void menu(Rectangle temp);
 
+// -------------------------------------- Variable ---------------------------------------------------------
+int TempPos;
+Rectangle TempMenuRect = {0,0,0,0};
+Rectangle Exit;
+bool TempMenu;
+vector<Rectangle> Templates;
+Camera2D camera;
+int *screen;
+Texture2D templatemenu;
+
+void set(Rectangle exit ,bool &tempmenu ,vector<Rectangle> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu){
+    Exit = exit;
+    TempMenu = tempmenu;
+    Templates = templates;
+    camera = Camera;
+    screen = Screen;
+    templatemenu = Templatemenu;
+}
 // ---------------------------------------- screen 1 ----------------------------------------------------
-
-void screen1(Rectangle Exit, vector<Rectangle> &Templates, Camera2D &camera){
+void screen1(){
     
     Rectangle NewTemplate = {75,120,150,200};
     
@@ -19,13 +38,27 @@ void screen1(Rectangle Exit, vector<Rectangle> &Templates, Camera2D &camera){
     
     for (int y = 0; y <= int(Templates.size() / 8); y++){
         for (int x = 0; x < 8; x++){ // vector<vector<Rectangle>>
-            if((8*y)+x < Templates.size()){
+            if((8*y)+x < (int)Templates.size()){
                 Rectangle rect = Templates.at((8*y)+x);
+                Rectangle menu = {rect.x+128,rect.y,22,18};
                 DrawRectangleRec(rect, WHITE);
-                        
-            if(CheckCollisionPointRec(GetMousePosition(), rect)){
-                DrawRectangleRec(rect, Color {0,0,0,50});
-                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                DrawTexture(templatemenu, menu.x, menu.y, WHITE);
+                DrawRectangleRec(menu, (Color){0,0,0,0});
+                DrawText(TextFormat("%i", (8*y)+x), rect.x+25, rect.y+100, 20, BLACK);  // temp
+            
+                //check if the menu button has  been clicked
+                if(CheckCollisionPointRec(GetMousePosition(), (Rectangle){menu.x-15,menu.y-15,menu.width+15,menu.height+15})){
+                    DrawRectangleRec(menu, Color {0,0,0,20});
+                    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                            TempMenu = !TempMenu;
+                            TempMenuRect = rect;
+                            TempPos = (8*y)+x;
+                    }
+                }
+                // check if one of the templates has been clicked            
+                else if(CheckCollisionPointRec(GetMousePosition(), rect) && !TempMenu){
+                    DrawRectangleRec(rect, Color {0,0,0,50});
+                    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         CloseWindow();
                     }
                 }
@@ -34,11 +67,15 @@ void screen1(Rectangle Exit, vector<Rectangle> &Templates, Camera2D &camera){
     }
     DrawText(" New + ", NewTemplate.x+(NewTemplate.width / 2)-30, NewTemplate.y+(NewTemplate.height/2), 20, GRAY);
     
+    if(TempMenu == 1){
+                menu(TempMenuRect);
+            }
+            
     if(CheckCollisionPointRec(GetMousePosition(), NewTemplate)){
         DrawRectangleRec(NewTemplate, Color {0,0,0,50});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            int y = int(Templates.size() / 8);
-            int x = int(Templates.size() % 8);
+            float y = float(Templates.size() / 8);
+            float x = float(Templates.size() % 8);
             Rectangle temp = {225*x+75,250*y+120,150,200};
             Templates.push_back(temp);
 
@@ -64,7 +101,7 @@ void screen1(Rectangle Exit, vector<Rectangle> &Templates, Camera2D &camera){
 
 //-------------------------------------screen 2 --------------------------------------------
 
-void screen2(Rectangle Exit, Camera2D &camera){
+void screen2(){
                 
     BeginMode2D(camera);        
         DrawRectangleRec(Rectangle {700,200,600,800}, Color {255,255,255,255}); // edit mode
@@ -79,11 +116,9 @@ void screen2(Rectangle Exit, Camera2D &camera){
                 // Get the world point that is under the mouse
                 Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-                // Set the offset to where the mouse is
                 camera.offset = GetMousePosition();
 
                 // Set the target to match, so that the camera maps the world space point 
-                // under the cursor to the screen space point under the cursor at any zoom
                 camera.target = mouseWorldPos;
 
                 // Zoom increment
@@ -104,4 +139,37 @@ void screen2(Rectangle Exit, Camera2D &camera){
     DrawRectangleRec(Rectangle {0,35,1950,35}, Color {220,220,220,255}); 
 
     DrawRectangleRec(Rectangle {0,75,300,900}, Color {200,200,200,255}); // tool bar
+}
+
+void menu(Rectangle temp){
+    Rectangle view = {temp.x+90,temp.y+20,60,30};
+    Rectangle edit = {temp.x+90,temp.y+50,60,30};
+    Rectangle del = {temp.x+90,temp.y+80,60,30};
+    Color transparent = {0,0,0,10};
+    DrawRectangleRec(view, transparent);
+    DrawText("View", view.x+15, view.y+10, 15, BLACK);
+    DrawRectangleRec(edit, transparent);
+    DrawText("Edit", edit.x+20, edit.y+10, 15, BLACK);
+    DrawRectangleRec(del, transparent);
+    DrawText("Delete", del.x+10, del.y+10, 15, BLACK);
+    if(CheckCollisionPointRec(GetMousePosition(), view)){
+        DrawRectangleRec(view, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            // ADD VIEW FUNCTION HERE
+        }
+    }else if(CheckCollisionPointRec(GetMousePosition(), edit)){
+        DrawRectangleRec(edit, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            *screen = 2;
+        }
+    }else if(CheckCollisionPointRec(GetMousePosition(), del)){
+        DrawRectangleRec(del, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            // ADD DELETE FUNCTION HERE LATER
+            TempMenu = false;
+        }
+    }//check if the menu button has not been clicked
+    else if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !CheckCollisionPointRec(GetMousePosition(), (Rectangle){temp.x+90,temp.y-15,70,125})) { 
+        TempMenu = false; 
+    }
 }

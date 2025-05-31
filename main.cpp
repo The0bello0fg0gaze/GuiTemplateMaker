@@ -13,6 +13,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
+    bool TempMenu = false;
     int screen = 1;
     vector<Rectangle> Templates;
 
@@ -22,6 +23,7 @@ int main(void)
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
     
+    
     ifstream templates("templates.txt");
     string s;
     while(getline(templates, s)){
@@ -30,24 +32,28 @@ int main(void)
     }
     templates.close();
     
+    Image TemplateMenu = LoadImage("Resources/TemplateMenu.png");         //2
+    Texture2D templatemenu = LoadTextureFromImage(TemplateMenu);
+    UnloadImage(TemplateMenu);
+    
+    
     //permanents
     Rectangle Exit = {1870,3,60,30};
     // Main game loop
+    set(Exit, TempMenu ,Templates, camera, &screen, templatemenu);
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
             ClearBackground(Color {180,180,180,255});
-            
             if(screen == 1){// Screen 1 is being loaded onto the screen
                 
-                screen1(Exit, Templates, camera);
+                screen1();
                 
             }else if(screen == 2){
                 
-                screen2 (Exit, camera);
+                screen2 ();     
    
             }
             
@@ -62,13 +68,12 @@ int main(void)
         
         //----------------------------------------------------------------------------------
     }
-
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
 }
-
+//convert string from x-y-width-height- format to rectangle
 Rectangle MakeRectangle(string str){
     Rectangle temp = {0,0,0,0};
     vector<int> temprect;
