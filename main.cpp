@@ -45,6 +45,7 @@ int main(void)
     set(Exit, TempMenu ,Templates, camera, &screen, templatemenu);
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+        update(GetMousePosition());
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
