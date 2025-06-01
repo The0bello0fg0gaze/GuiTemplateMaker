@@ -6,7 +6,10 @@
 #include <sstream>
 #include <string>
 using namespace std;
+// functions we are using
 Rectangle MakeRectangle(string s);
+void CloseFiles();
+
 int main(void)
 {
     // Initialization
@@ -15,7 +18,7 @@ int main(void)
     const int screenHeight = GetScreenHeight();
     bool TempMenu = false;
     int screen = 1;
-    vector<Rectangle> Templates;
+    vector<string> Templates;
 
     InitWindow(screenWidth, screenHeight, "Main File");
     Camera2D camera = { 0 };
@@ -27,8 +30,7 @@ int main(void)
     ifstream templates("templates.txt");
     string s;
     while(getline(templates, s)){
-        Rectangle rect = MakeRectangle(s); // convert x-y-width-height- from string to rectangle;
-        Templates.push_back(rect);
+        Templates.push_back(s);
     }
     templates.close();
     
@@ -60,6 +62,7 @@ int main(void)
         if(CheckCollisionPointRec(GetMousePosition(), Exit)){
             DrawRectangleRec(Exit, Color {0,0,0,50});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                CloseFiles();
                 CloseWindow();
             }
         }
@@ -68,11 +71,28 @@ int main(void)
         
         //----------------------------------------------------------------------------------
     }
+    
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
 }
+
+// close all the files 
+void CloseFiles(){
+    std::fstream file;
+    file.open("templates.txt", std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
+
+    if (file.is_open()) {
+        for(int i=0; i<(int)Templates.size(); i++){
+            file << Templates.at(i)+"\n";
+        }
+        file.close(); // Close the file after writing
+    } else {
+        std::cout << "Unable to open file\n";
+    }
+}
+
 //convert string from x-y-width-height- format to rectangle
 Rectangle MakeRectangle(string str){
     Rectangle temp = {0,0,0,0};

@@ -2,25 +2,27 @@
 #include "rlgl.h"
 #include "raymath.h"
 #include <vector>
+#include <string>
 #include <iostream>
 using namespace std;
 
-void set(Rectangle exit ,bool &tempmenu ,vector<Rectangle> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu);
+void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu);
 void screen1();
 void screen2();
-void menu(Rectangle temp);
+void CreateBlankTemp();
+void tempmenu(Rectangle temp);
 
 // -------------------------------------- Variable ---------------------------------------------------------
 int TempPos;
 Rectangle TempMenuRect = {0,0,0,0};
 Rectangle Exit;
 bool TempMenu;
-vector<Rectangle> Templates;
+vector<string> Templates;
 Camera2D camera;
 int *screen;
 Texture2D templatemenu;
 
-void set(Rectangle exit ,bool &tempmenu ,vector<Rectangle> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu){
+void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu){
     Exit = exit;
     TempMenu = tempmenu;
     Templates = templates;
@@ -37,14 +39,15 @@ void screen1(){
     DrawRectangleRec(NewTemplate, Color {255,255,255,255});
     
     for (int y = 0; y <= int(Templates.size() / 8); y++){
-        for (int x = 0; x < 8; x++){ // vector<vector<Rectangle>>
-            if((8*y)+x < (int)Templates.size()){
-                Rectangle rect = Templates.at((8*y)+x);
+        for (int x = 0; x <= 7; x++){
+            if((y!=0 || x!=0)&& (8*y)+x < int(Templates.size())){
+                // vector<vector<Rectangle>>
+                Rectangle rect = {225*x+75,250*y+120,150,200};
                 Rectangle menu = {rect.x+128,rect.y,22,18};
                 DrawRectangleRec(rect, WHITE);
                 DrawTexture(templatemenu, menu.x, menu.y, WHITE);
                 DrawRectangleRec(menu, (Color){0,0,0,0});
-                DrawText(TextFormat("%i", (8*y)+x), rect.x+25, rect.y+100, 20, BLACK);  // temp
+                DrawText(Templates.at(8*y+x).c_str(), rect.x+25, rect.y+100, 20, BLACK);  // temp
             
                 //check if the menu button has  been clicked
                 if(CheckCollisionPointRec(GetMousePosition(), (Rectangle){menu.x-15,menu.y-15,menu.width+15,menu.height+15})){
@@ -59,26 +62,24 @@ void screen1(){
                 else if(CheckCollisionPointRec(GetMousePosition(), rect) && !TempMenu){
                     DrawRectangleRec(rect, Color {0,0,0,50});
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                        CloseWindow();
+                        cout << "temp has been clicked " << endl;
                     }
                 }
             }
+            
         }
     }
     DrawText(" New + ", NewTemplate.x+(NewTemplate.width / 2)-30, NewTemplate.y+(NewTemplate.height/2), 20, GRAY);
     
     if(TempMenu == 1){
-                menu(TempMenuRect);
+                tempmenu(TempMenuRect);
             }
-            
+    // Creating a new blank template         
     if(CheckCollisionPointRec(GetMousePosition(), NewTemplate)){
         DrawRectangleRec(NewTemplate, Color {0,0,0,50});
+        
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            float y = float(Templates.size() / 8);
-            float x = float(Templates.size() % 8);
-            Rectangle temp = {225*x+75,250*y+120,150,200};
-            Templates.push_back(temp);
-
+            CreateBlankTemp();
         }
     }
     float wheel = GetMouseWheelMove()*40;
@@ -141,7 +142,7 @@ void screen2(){
     DrawRectangleRec(Rectangle {0,75,300,900}, Color {200,200,200,255}); // tool bar
 }
 
-void menu(Rectangle temp){
+void tempmenu(Rectangle temp){
     Rectangle view = {temp.x+90,temp.y+20,60,30};
     Rectangle edit = {temp.x+90,temp.y+50,60,30};
     Rectangle del = {temp.x+90,temp.y+80,60,30};
@@ -165,11 +166,23 @@ void menu(Rectangle temp){
     }else if(CheckCollisionPointRec(GetMousePosition(), del)){
         DrawRectangleRec(del, Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            // ADD DELETE FUNCTION HERE LATER
+            Templates.erase(Templates.begin()+TempPos);
             TempMenu = false;
         }
     }//check if the menu button has not been clicked
     else if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !CheckCollisionPointRec(GetMousePosition(), (Rectangle){temp.x+90,temp.y-15,70,125})) { 
         TempMenu = false; 
     }
+}
+
+void CreateBlankTemp(){
+    //check of the value
+    string temp = TextFormat("Unames%i.txt",(int)Templates.size());
+    for(int i=0; i<(int)Templates.size(); i++){
+        if(!Templates.at(i).compare(temp)){
+            temp = TextFormat("Unames%i.txt",(int)(Templates.size()+1));
+        }
+    }
+    Templates.push_back(temp);
+    
 }
