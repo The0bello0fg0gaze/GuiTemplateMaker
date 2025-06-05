@@ -12,17 +12,24 @@ void screen1();
 void screen2();
 void CreateBlankTemp();
 void tempmenu(Rectangle temp);
+void EditOptions();
+
+const char* templates_file = "Templates/templates.txt";
+const char* format_folder = "Templates/Formats/";
 
 // -------------------------------------- Variable ---------------------------------------------------------
+Camera2D camera;
+Texture2D templatemenu;
+
+int *screen;
 int TempPos;
-Rectangle TempMenuRect = {0,0,0,0};
-Rectangle Exit;
+
 bool TempMenu;
 vector<string> Templates;
-Camera2D camera;
-int *screen;
-Texture2D templatemenu;
 Vector2 mousePosWorld;
+
+Rectangle TempMenuRect = {0,0,0,0};
+Rectangle Exit;
 
 // update variable each loop
 void update(Vector2 mousepos){
@@ -108,16 +115,25 @@ void screen1(){
 }
 
 //-------------------------------------screen 2 --------------------------------------------
-
+Rectangle text_field = {50,150,200,75};
+Rectangle dropdown = {50,250,200,75}; 
+Rectangle checkbox = {50,350,200,75};
+Rectangle radio = {50,450,200,75};
+Rectangle toggle = {50,550,200,75};
+Rectangle date = {50,650,200,75};
+Rectangle uplode = {50,750,200,75};
+Vector2 clicked = {0,0};
 void screen2(){
                 
-    BeginMode2D(camera);        
+    BeginMode2D(camera);
+        // click and move the template on the screen  
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
         DrawRectangleRec(Rectangle {700,200,600,800}, Color {255,255,255,255}); // edit mode
-        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePosWorld, Rectangle {700,200,600,800})){
+        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(clicked, Rectangle {700,200,600,800})){
             Vector2 delta = GetMouseDelta();
             delta = Vector2Scale(delta, -1.0f/camera.zoom);
             camera.target = Vector2Add(camera.target, delta);
-        }else{
+        }else{ // zoom in and out of the template
             float wheel = GetMouseWheelMove();
             if (IsKeyDown(KEY_LEFT_CONTROL) && wheel != 0 )
             {
@@ -147,9 +163,56 @@ void screen2(){
     DrawRectangleRec(Rectangle {0,35,1950,35}, Color {220,220,220,255}); 
 
     DrawRectangleRec(Rectangle {0,75,300,900}, Color {200,200,200,255}); // tool bar
+    DrawRectangleRec(text_field, RED);
+    DrawRectangleRec(dropdown, RED);
+    DrawRectangleRec(checkbox, RED);
+    DrawRectangleRec(radio, RED);
+    DrawRectangleRec(toggle, RED);
+    DrawRectangleRec(date, RED);
+    DrawRectangleRec(uplode, RED);
+    
+    EditOptions();
 }
 
 //------------------------------ tepmlate menu-------------------------------------------------
+void EditOptions(){
+    if(CheckCollisionPointRec(mousePosWorld, text_field)){
+        DrawRectangleRec(text_field, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }else if(CheckCollisionPointRec(mousePosWorld, dropdown)){
+        DrawRectangleRec(dropdown, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }else if(CheckCollisionPointRec(mousePosWorld, checkbox)){
+        DrawRectangleRec(checkbox, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }else if(CheckCollisionPointRec(mousePosWorld, radio)){
+        DrawRectangleRec(radio, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }else if(CheckCollisionPointRec(mousePosWorld, toggle)){
+        DrawRectangleRec(toggle, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }else if(CheckCollisionPointRec(mousePosWorld, date)){
+        DrawRectangleRec(date, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }else if(CheckCollisionPointRec(mousePosWorld, uplode)){
+        DrawRectangleRec(uplode, Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            
+        }
+    }
+}
 
 void tempmenu(Rectangle temp){
     Rectangle view = {temp.x+90,temp.y+20,60,30};

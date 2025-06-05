@@ -7,8 +7,9 @@
 #include <string>
 using namespace std;
 // functions we are using
-Rectangle MakeRectangle(string s);
+Rectangle MakeRectangle(string);
 void CloseFiles();
+
 
 int main(void)
 {
@@ -19,6 +20,7 @@ int main(void)
     bool TempMenu = false;
     int screen = 1;
     vector<string> Templates;
+    vector<string> FileFormat;
 
     InitWindow(screenWidth, screenHeight, "Main File");
     Camera2D camera = { 0 };
@@ -27,7 +29,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     
     
-    ifstream templates("templates.txt");
+    ifstream templates(templates_file);
     string s;
     while(getline(templates, s)){
         Templates.push_back(s);
@@ -82,7 +84,7 @@ int main(void)
 // close all the files 
 void CloseFiles(){
     std::fstream file;
-    file.open("templates.txt", std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
+    file.open(templates_file, std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
     if (file.is_open()) {
         for(int i=0; i<(int)Templates.size(); i++){
