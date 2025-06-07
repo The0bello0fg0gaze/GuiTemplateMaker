@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "rlgl.h"
 #include "raymath.h"
+#include <fstream>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -13,6 +14,8 @@ void screen2();
 void CreateBlankTemp();
 void tempmenu(Rectangle temp);
 void EditOptions();
+void LoadFileFormat(Rectangle sheet);
+void CloseFormatFile();
 
 const char* templates_file = "Templates/templates.txt";
 const char* format_folder = "Templates/Formats/";
@@ -22,11 +25,12 @@ Camera2D camera;
 Texture2D templatemenu;
 
 int *screen;
-int TempPos;
+int *TempPos;
 
 bool TempMenu;
-vector<string> Templates;
+vector<string> Templates; // track the files that we have
 Vector2 mousePosWorld;
+vector<string> FileFormat; //store the current file loaded
 
 Rectangle TempMenuRect = {0,0,0,0};
 Rectangle Exit;
@@ -36,10 +40,12 @@ void update(Vector2 mousepos){
     mousePosWorld = GetScreenToWorld2D(mousepos, camera);
 }
 // update varibale once
-void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates, Camera2D &Camera, int *Screen, Texture2D Templatemenu){
+void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, Texture2D Templatemenu){
+    TempPos = tempPos;
     Exit = exit;
     TempMenu = tempmenu;
     Templates = templates;
+    FileFormat =fileformat;
     camera = Camera;
     screen = Screen;
     templatemenu = Templatemenu;
@@ -56,8 +62,8 @@ void screen1(){
         for (int x = 0; x <= 7; x++){
             if((y!=0 || x!=0)&& (8*y)+x < int(Templates.size())){
                 // vector<vector<Rectangle>>
-                Rectangle rect = {225*x+75,250*y+120,150,200};
-                Rectangle menu = {rect.x+128,rect.y,22,18};
+                Rectangle rect = {(float)225*x+75,(float)250*y+120,(float)150,200};
+                Rectangle menu = {(float)rect.x+128,(float)rect.y,(float)22,18};
                 DrawRectangleRec(rect, WHITE);
                 DrawTexture(templatemenu, menu.x, menu.y, WHITE);
                 DrawRectangleRec(menu, (Color){0,0,0,0});
@@ -69,7 +75,7 @@ void screen1(){
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                             TempMenu = !TempMenu;
                             TempMenuRect = rect;
-                            TempPos = (8*y)+x;
+                            *TempPos = (8*y)+x;
                     }
                 }
                 // check if one of the templates has been clicked            
@@ -115,20 +121,23 @@ void screen1(){
 }
 
 //-------------------------------------screen 2 --------------------------------------------
-Rectangle text_field = {50,150,200,75};
-Rectangle dropdown = {50,250,200,75}; 
-Rectangle checkbox = {50,350,200,75};
-Rectangle radio = {50,450,200,75};
-Rectangle toggle = {50,550,200,75};
-Rectangle date = {50,650,200,75};
-Rectangle uplode = {50,750,200,75};
+vector<Rectangle> UiObjects = {
+    {50,150,200,75}, //text_field 0
+    {50,250,200,75}, //dropdown 1
+    {50,350,200,75}, //checkbox 2
+    {50,450,200,75}, //radio 3
+    {50,550,200,75}, //toggle 4
+    {50,650,200,75}, //date 5
+    {50,750,200,75} //uplode 6
+};
 Vector2 clicked = {0,0};
 void screen2(){
-                
+    if( WindowShouldClose() ){*screen = 1; CloseFormatFile();}
+    Rectangle sheet =  {700,200,600,800};            
     BeginMode2D(camera);
         // click and move the template on the screen  
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
-        DrawRectangleRec(Rectangle {700,200,600,800}, Color {255,255,255,255}); // edit mode
+        DrawRectangleRec(sheet, Color {255,255,255,255}); // edit mode
         if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(clicked, Rectangle {700,200,600,800})){
             Vector2 delta = GetMouseDelta();
             delta = Vector2Scale(delta, -1.0f/camera.zoom);
@@ -151,6 +160,8 @@ void screen2(){
                 camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
             }
         }
+        
+        LoadFileFormat(sheet);
                     
     EndMode2D();
     
@@ -163,53 +174,109 @@ void screen2(){
     DrawRectangleRec(Rectangle {0,35,1950,35}, Color {220,220,220,255}); 
 
     DrawRectangleRec(Rectangle {0,75,300,900}, Color {200,200,200,255}); // tool bar
-    DrawRectangleRec(text_field, RED);
-    DrawRectangleRec(dropdown, RED);
-    DrawRectangleRec(checkbox, RED);
-    DrawRectangleRec(radio, RED);
-    DrawRectangleRec(toggle, RED);
-    DrawRectangleRec(date, RED);
-    DrawRectangleRec(uplode, RED);
+    DrawRectangleRec(UiObjects.at(0), RED);
+    DrawRectangleRec(UiObjects.at(1), RED);
+    DrawRectangleRec(UiObjects.at(2), RED);
+    DrawRectangleRec(UiObjects.at(3), RED);
+    DrawRectangleRec(UiObjects.at(4), RED);
+    DrawRectangleRec(UiObjects.at(5), RED);
+    DrawRectangleRec(UiObjects.at(6), RED);
     
     EditOptions();
 }
 
 //------------------------------ tepmlate menu-------------------------------------------------
+void LoadFileFormat(Rectangle sheet){
+    vector<int> Data;
+    string format;
+    for(int j=0; j < (int)FileFormat.size(); j++){
+        for(int i=0; i < (int)FileFormat.at(j).size(); i++){
+            if(FileFormat.at(j).at(i) != ','){
+                format.push_back(FileFormat.at(j).at(i));
+            }else if(format == "text_field"){
+                Data.push_back(0);
+                format.clear();
+            }else if(format == "dropdown"){
+                Data.push_back(1);
+                format.clear();
+            }else if(format == "checkbox"){
+                Data.push_back(2);
+                format.clear();
+            }else if(format == "radio"){
+                Data.push_back(3);
+                format.clear();
+            }else if(format == "toggle"){
+                Data.push_back(4);
+                format.clear();
+            }else if(format == "date"){
+                Data.push_back(5);
+                format.clear();
+            }else if(format == "uplode"){
+                Data.push_back(6);
+                format.clear();
+            }else{
+                Data.push_back(std::stoi(format));
+                format.clear();
+            }
+        }
+        int pos = Data.at(1);
+        if(Data.at(0) == 0){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }else if(Data.at(0) == 1){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }else if(Data.at(0) == 2){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }else if(Data.at(0) == 3){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }else if(Data.at(0) == 4){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }else if(Data.at(0) == 5){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }else if(Data.at(0) == 6){
+            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+        }
+        format.clear();
+        Data.clear();
+    }
+}
+
+
+
 void EditOptions(){
-    if(CheckCollisionPointRec(mousePosWorld, text_field)){
-        DrawRectangleRec(text_field, Color {0,0,0,20});
+    if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(0))){
+        DrawRectangleRec(UiObjects.at(0), Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
+            FileFormat.push_back(TextFormat("text_field,%i,",(int)FileFormat.size()));
+          }
+    }else if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(1))){
+        DrawRectangleRec(UiObjects.at(1), Color {0,0,0,20});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            FileFormat.push_back(TextFormat("dropdown,%i,",(int)FileFormat.size()));
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, dropdown)){
-        DrawRectangleRec(dropdown, Color {0,0,0,20});
+    }else if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(2))){
+        DrawRectangleRec(UiObjects.at(2), Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
+            FileFormat.push_back(TextFormat("checkbox,%i,",(int)FileFormat.size()));
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, checkbox)){
-        DrawRectangleRec(checkbox, Color {0,0,0,20});
+    }else if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(3))){
+        DrawRectangleRec(UiObjects.at(3), Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
+            FileFormat.push_back(TextFormat("radio,%i,",(int)FileFormat.size()));
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, radio)){
-        DrawRectangleRec(radio, Color {0,0,0,20});
+    }else if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(4))){
+        DrawRectangleRec(UiObjects.at(4), Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
+            FileFormat.push_back(TextFormat("toggle,%i,",(int)FileFormat.size()));
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, toggle)){
-        DrawRectangleRec(toggle, Color {0,0,0,20});
+    }else if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(5))){
+        DrawRectangleRec(UiObjects.at(5), Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
+            FileFormat.push_back(TextFormat("date,%i,",(int)FileFormat.size()));
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, date)){
-        DrawRectangleRec(date, Color {0,0,0,20});
+    }else if(CheckCollisionPointRec(mousePosWorld, UiObjects.at(6))){
+        DrawRectangleRec(UiObjects.at(6), Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
-        }
-    }else if(CheckCollisionPointRec(mousePosWorld, uplode)){
-        DrawRectangleRec(uplode, Color {0,0,0,20});
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            
+            FileFormat.push_back(TextFormat("uplode,%i,",(int)FileFormat.size()));
         }
     }
 }
@@ -227,18 +294,31 @@ void tempmenu(Rectangle temp){
     DrawText("Delete", del.x+10, del.y+10, 15, BLACK);
     if(CheckCollisionPointRec(mousePosWorld, view)){
         DrawRectangleRec(view, Color {0,0,0,20});
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){ // VIEW
             // ADD VIEW FUNCTION HERE
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, edit)){
+    }else if(CheckCollisionPointRec(mousePosWorld, edit)){ // EDIT
         DrawRectangleRec(edit, Color {0,0,0,20});
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){    
             *screen = 2;
+            ifstream Format((format_folder+Templates.at(*TempPos)).c_str());
+            string s;
+            FileFormat.clear();
+            while(getline(Format, s)){
+                FileFormat.push_back(s);
+            }
+            Format.close();
         }
-    }else if(CheckCollisionPointRec(mousePosWorld, del)){
+    }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
         DrawRectangleRec(del, Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            Templates.erase(Templates.begin()+TempPos);
+            if (remove((format_folder+Templates.at(*TempPos)).c_str()) == 0) { //delete the file
+                std::cout << "File deleted successfully." << std::endl;
+            } else {
+                perror("Failed to delete file");
+            }
+            
+            Templates.erase(Templates.begin()+*TempPos);
             TempMenu = false;
         }
     }//check if the menu button has not been clicked
@@ -258,4 +338,27 @@ void CreateBlankTemp(){
     }
     Templates.push_back(temp);
     
+    fstream file; // Object of fstream class
+    file.open(format_folder+temp, ios::out); // Open file "test.txt" in out(write) mode
+    if (!file) { // If file is not created, return error
+        std::cout << "Error in file creation!" << format_folder+temp << std::endl;
+    } else {
+        std::cout << "File Creation successful." << format_folder+temp << std::endl;
+    }
+    file.close();
+    
+}
+
+void CloseFormatFile(){
+    std::fstream file;
+    file.open(TextFormat("Templates/Formats/%s",Templates.at(*TempPos).c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
+
+    if (file.is_open()) {
+        for(int i=0; i<(int)FileFormat.size(); i++){
+            file << FileFormat.at(i) << "\n";
+        }
+        file.close(); // Close the file after writing
+    } else {
+        std::cout << "Unable to open file FileFormat\n";
+    }
 }

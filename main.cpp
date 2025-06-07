@@ -9,18 +9,19 @@ using namespace std;
 // functions we are using
 Rectangle MakeRectangle(string);
 void CloseFiles();
+void CloseFormatFile();
 
+const int screenWidth = GetScreenWidth();
+const int screenHeight = GetScreenHeight();
 
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = GetScreenWidth();
-    const int screenHeight = GetScreenHeight();
     bool TempMenu = false;
     int screen = 1;
+    int TempPos;
     vector<string> Templates;
-    vector<string> FileFormat;
 
     InitWindow(screenWidth, screenHeight, "Main File");
     Camera2D camera = { 0 };
@@ -40,12 +41,13 @@ int main(void)
     Texture2D templatemenu = LoadTextureFromImage(TemplateMenu);
     UnloadImage(TemplateMenu);
     
+    vector<string> FileFormat;
     
     //permanents
     Rectangle Exit = {1870,3,60,30};
     // Main game loop
-    set(Exit, TempMenu ,Templates, camera, &screen, templatemenu);
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    set(Exit, TempMenu ,Templates, FileFormat, camera, &screen, &TempPos, templatemenu);
+    while (true)    // Detect window close button or ESC key
     {
         update(GetMousePosition());
         // Draw
@@ -66,6 +68,7 @@ int main(void)
             DrawRectangleRec(Exit, Color {0,0,0,50});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 CloseFiles();
+                CloseFormatFile();
                 CloseWindow();
             }
         }
@@ -88,13 +91,15 @@ void CloseFiles(){
 
     if (file.is_open()) {
         for(int i=0; i<(int)Templates.size(); i++){
-            file << Templates.at(i)+"\n";
+            file << Templates.at(i) << "\n";
         }
         file.close(); // Close the file after writing
     } else {
-        std::cout << "Unable to open file\n";
+        std::cout << "Unable to open file Templates\n";
     }
 }
+
+
 
 //convert string from x-y-width-height- format to rectangle
 Rectangle MakeRectangle(string str){
