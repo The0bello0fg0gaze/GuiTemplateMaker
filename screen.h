@@ -140,7 +140,7 @@ void screen2(){
         *screen = 1;
         camera.zoom = 1.0f;
         camera.target = Vector2{0,0};
-        camera.offset = Vector2{screenWidth/2,screenHeight/2};
+        camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
         CloseFormatFile();
     }
     Rectangle sheet =  {700,200,600,800};   
@@ -202,6 +202,7 @@ void screen2(){
 void LoadFileFormat(Rectangle sheet){
     vector<int> Data;
     string format;
+    updateui(mousePosWorld);
     for(int j=0; j < (int)FileFormat.size(); j++){
         for(int i=0; i < (int)FileFormat.at(j).size(); i++){
             if(FileFormat.at(j).at(i) != ','){
@@ -237,7 +238,8 @@ void LoadFileFormat(Rectangle sheet){
             string Text_field = "Student Names";
             Text_Field(sheet, pos, Text_field);
         }else if(Data.at(0) == 1){
-            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, GREEN);
+            string Text_field = "State";
+            DropDown(sheet, pos, Text_field);
         }else if(Data.at(0) == 2){
             DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
         }else if(Data.at(0) == 3){
@@ -318,7 +320,7 @@ void tempmenu(Rectangle temp){
             *screen = 2;
             camera.zoom = 1.0f;
             camera.target = Vector2{0,0};
-            camera.offset = Vector2{screenWidth/2,screenHeight/2};
+            camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
             ifstream Format((format_folder+Templates.at(*TempPos)).c_str());
             string s;
             FileFormat.clear();
