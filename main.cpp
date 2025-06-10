@@ -6,13 +6,12 @@
 #include <sstream>
 #include <string>
 using namespace std;
+
 // functions we are using
 Rectangle MakeRectangle(string);
 void CloseFiles();
 void CloseFormatFile();
 
-const int screenWidth = GetScreenWidth();
-const int screenHeight = GetScreenHeight();
 
 int main(void)
 {
@@ -22,7 +21,7 @@ int main(void)
     int screen = 1;
     int TempPos;
     vector<string> Templates;
-
+    vector<Texture2D> Images;
     InitWindow(screenWidth, screenHeight, "Main File");
     Camera2D camera = { 0 };
     camera.zoom = 1.0f;
@@ -37,22 +36,59 @@ int main(void)
     }
     templates.close();
     
-    Image TemplateMenu = LoadImage("Resources/TemplateMenu.png");         //2
+    Image TemplateMenu = LoadImage("Resources/TemplateMenu.png"); //0
     Texture2D templatemenu = LoadTextureFromImage(TemplateMenu);
+    Images.push_back(templatemenu);
     UnloadImage(TemplateMenu);
+    
+    Image Text_Field = LoadImage("Resources/Text_Field.png"); //1
+    Texture2D text_field = LoadTextureFromImage(Text_Field);
+    Images.push_back(text_field);
+    UnloadImage(Text_Field);
+
+    Image Dropdown = LoadImage("Resources/Dropdown.png"); //2
+    Texture2D dropdown = LoadTextureFromImage(Dropdown);
+    Images.push_back(dropdown);    
+    UnloadImage(Dropdown);
+
+    Image Checkbox = LoadImage("Resources/Checkbox.png"); //3
+    Texture2D checkbox = LoadTextureFromImage(Checkbox);
+    Images.push_back(checkbox);
+    UnloadImage(Checkbox);
+
+    Image Radio = LoadImage("Resources/Radio.png"); //4
+    Texture2D radio = LoadTextureFromImage(Radio);
+    Images.push_back(radio);
+    UnloadImage(Radio);
+
+    Image Toggle = LoadImage("Resources/Toggle.png"); //5
+    Texture2D toggle = LoadTextureFromImage(Toggle);
+    Images.push_back(toggle);
+    UnloadImage(Toggle);
+ 
+    Image Date = LoadImage("Resources/Date.png"); //6
+    Texture2D date = LoadTextureFromImage(Date);
+    Images.push_back(date);
+    UnloadImage(Date);
+
+    Image Uplode = LoadImage("Resources/Uplode.png"); //7
+    Texture2D uplode = LoadTextureFromImage(Uplode);
+    Images.push_back(uplode);
+    UnloadImage(Uplode);
+    
     
     vector<string> FileFormat;
     
     //permanents
     Rectangle Exit = {1870,3,60,30};
     // Main game loop
-    set(Exit, TempMenu ,Templates, FileFormat, camera, &screen, &TempPos, templatemenu);
+    set(Exit, TempMenu ,Templates, FileFormat, camera, &screen, &TempPos, Images);
     while (true)    // Detect window close button or ESC key
     {
-        update(GetMousePosition());
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
+            update(GetMousePosition());
             ClearBackground(Color {180,180,180,255});
             if(screen == 1){// Screen 1 is being loaded onto the screen
                 
@@ -77,7 +113,8 @@ int main(void)
         
         //----------------------------------------------------------------------------------
     }
-    
+    CloseFiles();
+    CloseFormatFile();
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
