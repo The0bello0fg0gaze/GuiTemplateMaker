@@ -100,7 +100,7 @@ int main(void)
    
             }
             
-        if(CheckCollisionPointRec(GetMousePosition(), Exit)){
+        if(CheckCollisionPointRec(GetMousePosition(), Exit)){ 
             DrawRectangleRec(Exit, Color {0,0,0,50});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 CloseFiles();
