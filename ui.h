@@ -35,10 +35,9 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title){
 void Radio(Rectangle Sheet, int Pos, std::string Title, vector<Select> Data){
     float x = Sheet.x+15,  y = Sheet.y+ 15 + Pos*30,   Width = Sheet.width-20-Title.size()*13;
     DrawText(Title.c_str(), x, y, 20, BLACK);
-    for(int i=0; i< (int)Data.size(); i++){        // for each value of Data 
+    for(int i=0; i< (int)Data.size(); i++){                                   // for each value of Data 
         DrawText(Data.at(i).name.c_str(), x, y, 20, BLACK);
         x += Data.name.size + i*;
-        y = ;
         DrawCircleLines(x, y, 10, BLACK);
         if(Data.at(i).selected){                                               // draw the tick if selected                     
             DrawCircle(x, y, 5, BLACK);
