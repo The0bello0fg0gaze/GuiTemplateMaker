@@ -235,15 +235,21 @@ void LoadFileFormat(Rectangle sheet){
         }
         int pos = Data.at(1);
         if(Data.at(0) == 0){
-            string Text_field = "Student Names";
+            string Text_field = "Text_Field";
             Text_Field(sheet, pos, Text_field);
         }else if(Data.at(0) == 1){
-            string Text_field = "State";
+            string Text_field = "Dropdown";
             DropDown(sheet, pos, Text_field);
         }else if(Data.at(0) == 2){
-            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLUE);
+            Select r1,r2;
+            vector<Select> data = {r1, r2};
+            string Title = "Check Box:-";
+            CheckBox(sheet, pos, Title, data);
         }else if(Data.at(0) == 3){
-            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, YELLOW);
+            Select r1,r2;
+            vector<Select> data = {r1, r2};
+            string Title = "Radio:-";
+            Radio(sheet, pos, Title, data);
         }else if(Data.at(0) == 4){
             DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, GRAY);
         }else if(Data.at(0) == 5){
