@@ -42,7 +42,7 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title){
 }
 
 void CheckBox(Rectangle Sheet, int Pos, std::string Title, std::vector<Select> data){
-    float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15,   Width = Sheet.width-20-Title.size()*13;
+    float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15;
     DrawText(Title.c_str(), x, y, 20, BLACK);
     x += Title.size()*13;
     for(int i = 0; i < (int)data.size(); i++ ){
@@ -59,7 +59,7 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, std::vector<Select> d
 }
 
 void Radio(Rectangle Sheet, int Pos, std::string Title, std::vector<Select> data){
-    float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15,   Width = Sheet.width-20-Title.size()*13;
+    float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15;
     DrawText(Title.c_str(), x, y, 20, BLACK);
     x += Title.size()*13;
     for(int i = 0; i < (int)data.size(); i++ ){
@@ -72,3 +72,45 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, std::vector<Select> data
         }
     }
 }
+
+void Toggle(Rectangle Sheet, int Pos, std::string Title, bool *state){
+    float x = Sheet.x,  y = Sheet.y + Pos*30;
+    DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
+    Rectangle Text_Box = {x+15+Title.size()*13, y+15, 200, 25.0f};
+    float thickness = 1.0f;
+    if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
+        thickness = 1.5f;                                       // add functioning here
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            *state = !(*state);
+        }
+    }
+    if(*state){
+        DrawRectangle(Text_Box.x+100, Text_Box.y+3, 100, 20, BLACK);
+    }else{
+        DrawRectangle(Text_Box.x, Text_Box.y+3, 100, 20, RED);
+    }
+    DrawRectangleLinesEx(Text_Box, thickness, BLACK);
+}
+
+void Date(Rectangle Sheet, int Pos, std::string Title){
+    float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
+    DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
+    Rectangle Text_Box = {x+15+Title.size()*13, y+15, Width, 25.0f};
+    float thickness = 1.0f;
+    if(CheckCollisionPointRec(MousePosWorld, Text_Box)){
+        thickness = 1.5f;                                                     // add functioning here
+    }
+    DrawRectangleLinesEx(Text_Box, thickness, BLACK);
+}
+
+void Uplode(Rectangle Sheet, int Pos, std::string Title){
+    float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
+    DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
+    Rectangle Text_Box = {x+15+Title.size()*13, y+15, Width, 25.0f};
+    float thickness = 1.0f;
+    if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
+        thickness = 1.5f;                                                     // add functioning here
+    }
+    DrawRectangleLinesEx(Text_Box, thickness, BLACK);
+}
+

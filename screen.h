@@ -251,7 +251,9 @@ void LoadFileFormat(Rectangle sheet){
             string Title = "Radio:-";
             Radio(sheet, pos, Title, data);
         }else if(Data.at(0) == 4){
-            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, GRAY);
+            bool state = false;
+            string Title = "Toggle:-";
+            Toggle(sheet, pos, Title, &state);
         }else if(Data.at(0) == 5){
             DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLACK);
         }else if(Data.at(0) == 6){
