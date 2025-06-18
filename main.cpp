@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "screen.h"
+#include "libxl.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -85,6 +86,7 @@ int main(void)
     set(Exit, TempMenu ,Templates, FileFormat, camera, &screen, &TempPos, Images);
     while (true)    // Detect window close button or ESC key
     {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();

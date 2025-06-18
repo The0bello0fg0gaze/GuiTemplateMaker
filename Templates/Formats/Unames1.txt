@@ -1,0 +1,3 @@
+dropdown,make,op1,op2,
+checkbox,Gender,op1,op2,
+text_field,Name,

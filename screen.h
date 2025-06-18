@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates, Camera2D &Camera, int *Screen, Texture2D images);
+void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images);
 void update(Vector2 mousepos);
 void screen1();
 void screen2();
@@ -20,6 +20,8 @@ void tempmenu(Rectangle temp);
 void EditOptions();
 void LoadFileFormat(Rectangle sheet);
 void CloseFormatFile();
+void ShowFileFormatEditMode(Rectangle sheet);
+void CopyUiObjects();
 
 const int screenWidth = GetScreenWidth();
 const int screenHeight = GetScreenHeight();
@@ -33,7 +35,10 @@ vector<Texture2D> Images;
 int *screen;
 int *TempPos;
 
+bool ReadEnable = true;
 bool TempMenu;
+
+vector<UiElements> SheetUiData; 
 vector<string> Templates; // track the files that we have
 Vector2 mousePosWorld;
 vector<string> FileFormat; //store the current file loaded
@@ -135,6 +140,7 @@ vector<Rectangle> UiObjects = {
     {50,750,200,59}  //uplode 6
 };
 Vector2 clicked = {0,0};
+
 void screen2(){
     if( WindowShouldClose() ){
         *screen = 1;
@@ -144,7 +150,7 @@ void screen2(){
         CloseFormatFile();
     }
     Rectangle sheet =  {700,200,600,800};   
-    string Name = Templates.at(*TempPos);
+    string Name = Templates[*TempPos];
     BeginMode2D(camera);
         // click and move the template on the screen  
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
@@ -174,7 +180,36 @@ void screen2(){
                 camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
             }
         }
-        LoadFileFormat(sheet);
+        float wheel = GetMouseWheelMove() * 20;
+        if (wheel != 0 )
+        {
+            camera.target.y += wheel; // up and down movement
+        }
+        updateui(mousePosWorld);
+        if(ReadEnable){LoadFileFormat(sheet);}
+        ShowFileFormatEditMode(sheet);
+
+        if(stredit){                                // take input from key board to a string and replace it with str
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((key >= 32) && (key <= 125) && ((int)streditvalue->size() < streditmaxval)) {
+                    streditvalue->push_back((char)key);
+                }
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
+                streditvalue->pop_back();  // Removes last character
+            }
+            if(IsKeyDown(KEY_ENTER)){
+                stredit = false;
+                streditvalue = nullptr;
+                CopyUiObjects();
+            }
+        }
+        
+        
                     
     EndMode2D();
     
@@ -200,108 +235,118 @@ void screen2(){
 
 //------------------------------ tepmlate menu-------------------------------------------------
 void LoadFileFormat(Rectangle sheet){
-    vector<int> Data;
+    string tag;
+    vector<string> data;
     string format;
-    updateui(mousePosWorld);
+    ReadEnable = false;
+    SheetUiData.clear();
+     // read the format file to print the data on the screen each time its being updated or when a screen is opened
     for(int j=0; j < (int)FileFormat.size(); j++){
         for(int i=0; i < (int)FileFormat.at(j).size(); i++){
             if(FileFormat.at(j).at(i) != ','){
                 format.push_back(FileFormat.at(j).at(i));
-            }else if(format == "text_field"){
-                Data.push_back(0);
-                format.clear();
-            }else if(format == "dropdown"){
-                Data.push_back(1);
-                format.clear();
-            }else if(format == "checkbox"){
-                Data.push_back(2);
-                format.clear();
-            }else if(format == "radio"){
-                Data.push_back(3);
-                format.clear();
-            }else if(format == "toggle"){
-                Data.push_back(4);
-                format.clear();
-            }else if(format == "date"){
-                Data.push_back(5);
-                format.clear();
-            }else if(format == "uplode"){
-                Data.push_back(6);
+            }else if(format == "text_field" || format == "dropdown" || format == "checkbox" || format == "radio" || format == "toggle" 
+                || format == "date" || format == "uplode"){
+                tag = format;
                 format.clear();
             }else{
-                Data.push_back(std::stoi(format));
+                data.emplace_back(format);
                 format.clear();
             }
         }
-        int pos = Data.at(1);
-        if(Data.at(0) == 0){
-            string Text_field = "Text_Field";
-            Text_Field(sheet, pos, Text_field);
-        }else if(Data.at(0) == 1){
-            string Text_field = "Dropdown";
-            DropDown(sheet, pos, Text_field);
-        }else if(Data.at(0) == 2){
-            Select r1,r2;
-            vector<Select> data = {r1, r2};
-            string Title = "Check Box:-";
-            CheckBox(sheet, pos, Title, data);
-        }else if(Data.at(0) == 3){
-            Select r1,r2;
-            vector<Select> data = {r1, r2};
-            string Title = "Radio:-";
-            Radio(sheet, pos, Title, data);
-        }else if(Data.at(0) == 4){
-            bool state = false;
-            string Title = "Toggle:-";
-            Toggle(sheet, pos, Title, &state);
-        }else if(Data.at(0) == 5){
-            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, BLACK);
-        }else if(Data.at(0) == 6){
-            DrawRectangle(sheet.x, sheet.y+pos*25, sheet.width, 25, GRAY);
-        }
+        // store all the data on how the ui are placed and options in the object
+        SheetUiData.emplace_back(tag,data);
         format.clear();
-        Data.clear();
+        data.clear();
     }
 }
 
+void ShowFileFormatEditMode(Rectangle sheet){
+    for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
+        UiElements& data = SheetUiData.at(pos);
+        std::string tag = data.tag;
+        std::string name = data.GetName();  
+        float x = sheet.x + 15,  y = sheet.y+ 15 + (pos+1)*30;
+        Rectangle deleterect = {x-50,y,25,25};
+        Rectangle namebox = {x, y, (float)name.size()*12,25};
 
+        if (tag == "text_field") {
+            Text_Field(sheet, pos+1, name, data);
+        } else if (tag == "dropdown") {
+            DropDown(sheet, pos+1, name, data);
+        } else if (tag == "checkbox") {
+            CheckBox(sheet, pos+1, name, data);
+        } else if (tag == "radio") {
+            Radio(sheet, pos+1, name, data);
+        } else if (tag == "toggle") {
+            Toggle(sheet, pos+1, name, data);
+        } else if (tag == "date") {
+            Date(sheet, pos+1, name, data);
+        } else if (tag == "uplode") {
+            Uplode(sheet, pos+1, name);
+        }
+        if(CheckCollisionPointRec(MousePosWorld, deleterect)){
+            DrawRectangleRec(deleterect,(Color){255,0,0,200});
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                ReadEnable = true;
+                FileFormat.erase(FileFormat.begin()+pos);
+            }
+        }
+        if(CheckCollisionPointRec(MousePosWorld, namebox)){
+            DrawRectangleRec(namebox,(Color){0,0,0,100});
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                stredit = true;
+                streditvalue = &SheetUiData[pos].options[0];
+                streditmaxval = 20;
+            }
+        }
+        DrawRectangleRec(deleterect,(Color){255,0,0,100});
+        DrawText("-",x-40,y+3,20,BLACK);
+    }
+}
 
 void EditOptions(){
-    int size = FileFormat.size()+1;
     if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(0))){
-        DrawRectangleRec(UiObjects.at(0), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[0], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("text_field,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("text_field,Text,");
           }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(1))){
-        DrawRectangleRec(UiObjects.at(1), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[1], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("dropdown,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("dropdown,Text,op1,op2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(2))){
-        DrawRectangleRec(UiObjects.at(2), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[2], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("checkbox,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("checkbox,Text,op1,op2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(3))){
-        DrawRectangleRec(UiObjects.at(3), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[3], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("radio,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("radio,Text,op1,op2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(4))){
-        DrawRectangleRec(UiObjects.at(4), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[4], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("toggle,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("toggle,Text,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(5))){
-        DrawRectangleRec(UiObjects.at(5), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[5], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("date,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("date,Text,8,11,2006,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(6))){
-        DrawRectangleRec(UiObjects.at(6), Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[6], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            FileFormat.push_back(TextFormat("uplode,%i,",size));
+            ReadEnable = true;
+            FileFormat.push_back("uplode,Text,");
         }
     }
 }
@@ -360,7 +405,7 @@ void CreateBlankTemp(){
     //check of the value
     string temp = TextFormat("Unames%i.txt",(int)Templates.size());
     for(int i=0; i<(int)Templates.size(); i++){
-        if(!Templates.at(i).compare(temp)){
+        if(!Templates[i].compare(temp)){
             temp = TextFormat("Unames%i.txt",(int)(Templates.size()+1));
         }
     }
@@ -383,10 +428,24 @@ void CloseFormatFile(){
 
     if (file.is_open()) {
         for(int i=0; i<(int)FileFormat.size(); i++){
-            file << FileFormat.at(i) << "\n";
+            file << FileFormat[i] << "\n";
         }
         file.close(); // Close the file after writing
     } else {
         std::cout << "Unable to open file FileFormat\n";
+    }
+
+    SheetUiData.clear();
+}
+
+void CopyUiObjects(){
+    FileFormat.clear();
+    for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
+        UiElements& data = SheetUiData.at(pos);
+        std::string templatedata;
+        for(int x=0; x < (int)data.options.size(); x++){
+            templatedata += data.options[x]+",";
+        }
+        FileFormat.push_back(data.tag+","+templatedata);
     }
 }
