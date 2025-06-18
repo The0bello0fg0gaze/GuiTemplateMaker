@@ -20,6 +20,13 @@ class UiElements{
     UiElements(std::string Tag, std::vector<std::string> Options = {"NULL"}){
         tag = Tag;
         options = Options;
+        int size = Options.size();
+        if(size > 4){
+            int_data.clear();
+            for(int i=0; i < size; i++){
+                int_data.push_back(-1);
+            }
+        }
     }
 
     std::string GetName(){
@@ -77,9 +84,9 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
             DrawText(data.options[i].c_str() ,dropdown.x+(Width/2)-data.options[i].size()*12 ,dropdown.y ,20 ,BLACK);
         }
     }
-    x = dropdown.x+dropdown.width ;                                           // change value of x for triangle
-    DrawRectangleLinesEx(dropdown, thickness, BLACK);                         //draw the upsided down triangle and the box
-    DrawTriangle(Vector2 {x-10, y+22}, Vector2 {x-30, y+22}, Vector2 {x-20, y+32}, BLACK);
+    x = dropdown.x+dropdown.width ;                                           
+    DrawRectangleLinesEx(dropdown, thickness, BLACK);
+    DrawTriangle(Vector2 {x-10, y+22}, Vector2 {x-30, y+22}, Vector2 {x-20, y+32}, BLACK); //draw the upsided down triangle and the box
 }
 
 void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
@@ -88,12 +95,16 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     x += Title.size()*13;
     for(int i = 1; i < (int)data.options.size(); i++ ){
         x += 20;
-        DrawText( data.options.at(i).c_str(), x, y, 20, BLACK);
-        x += data.options.at(i).size()*14;
+        DrawText( data.options[i].c_str(), x, y, 20, BLACK);
+        x += data.options[i].size()*14;
         float thickness = 1.0f;
         Rectangle checkboxrect = {x, y+5, 10, 10};
         if(CheckCollisionPointRec(MousePosWorld, checkboxrect)){
             thickness = 1.5f;                                                 // add functioning here
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[i] = 0-data.int_data[i];
+        }
+        if(data.int_data[i]  > 0){
+            DrawCircle(x+5, y+10, 3.5, BLACK);    
         }
         DrawRectangleLinesEx(checkboxrect, thickness, BLACK);
     }
@@ -105,8 +116,8 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     x += Title.size()*13;
     for(int i = 1; i < (int)data.options.size(); i++ ){
         x += 20;
-        DrawText( data.options.at(i).c_str(), x, y, 20, BLACK);
-        x += data.options.at(i).size()*14;
+        DrawText( data.options[i].c_str(), x, y, 20, BLACK);
+        x += data.options[i].size()*14;
         DrawCircleLines( x, y+10, 5, BLACK);
         if(CheckCollisionPointCircle(MousePosWorld, (Vector2){x, y+10}, 5)){
             DrawCircleLines( x, y+10, 4, BLACK);                          // add functioning here
