@@ -14,7 +14,7 @@ class UiElements{
     public:
     std::vector<std::string> options;
     std::string str_data = "NULL";
-    std::vector<int> int_data = {-1,-1,-1};
+    std::vector<int> int_data = {0,0,0};
     std::string tag;
 
     UiElements(std::string Tag, std::vector<std::string> Options = {"NULL"}){
@@ -24,7 +24,7 @@ class UiElements{
         if(size > 4){
             int_data.clear();
             for(int i=0; i < size; i++){
-                int_data.push_back(-1);
+                int_data.push_back(0);
             }
         }
     }
@@ -66,13 +66,13 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, dropdown)){ 
         thickness = 1.5f;                                                     
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = 0-data.int_data[0];
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = !data.int_data[0];
     }
-    if(data.int_data[0] > 0){
+    if(data.int_data[0]){
         DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*((int)data.int_data.size()-1), GRAY);
     }
     for(int i=1; i< (int)data.options.size(); i++){
-        if(data.int_data[0] > 0){
+        if(data.int_data[0]){
             Rectangle Dropdown = {x+15+Title.size()*13, y+15+25*i, Width, 25};
             DrawText(data.options[i].c_str(), Dropdown.x+(Width/2)-data.options[i].size()*12,Dropdown.y, 20, BLACK);
             if(CheckCollisionPointRec(MousePosWorld, Dropdown)){ 
@@ -80,7 +80,7 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
                 if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
             }
         }
-        if(data.int_data[i] > 0){
+        if(data.int_data[i]){
             DrawText(data.options[i].c_str() ,dropdown.x+(Width/2)-data.options[i].size()*12 ,dropdown.y ,20 ,BLACK);
         }
     }
@@ -101,9 +101,9 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         Rectangle checkboxrect = {x-10, y, 20, 20};
         if(CheckCollisionPointRec(MousePosWorld, checkboxrect)){
             thickness = 1.5f;                                                 // add functioning here
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[i] = 0-data.int_data[i];
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[i] = !data.int_data[i];
         }
-        if(data.int_data[i]  > 0){
+        if(data.int_data[i]){
             DrawCircle(x, y+10, 5, BLACK);    
         }
         DrawRectangleLinesEx(checkboxrect, thickness, BLACK);
@@ -123,7 +123,7 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
             DrawCircleLines( x, y+7, 8, BLACK);                          // add functioning here
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
         }
-        if(data.int_data[i]  > 0){
+        if(data.int_data[i]){
             DrawCircle(x, y+7, 5, BLACK);    
         }
     }
@@ -132,18 +132,20 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
 void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float x = Sheet.x,  y = Sheet.y + Pos*30;
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
-    Rectangle Text_Box = {x+15+Title.size()*13, y+15, 200, 25.0f};
+    Rectangle Text_Box = {x+15+Title.size()*13, y+15, 80, 25.0f};
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
         thickness = 1.5f;                                       // add functioning here
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            data.int_data.at(0) = 0-data.int_data.at(0);
+            data.int_data.at(0) = !data.int_data.at(0);
         }
     }
-    if(data.int_data.at(0)>0){
-        DrawRectangle(Text_Box.x+100, Text_Box.y+3, 100, 20, BLACK);
+    if(data.int_data.at(0)){
+        DrawRectangle(Text_Box.x, Text_Box.y, 80, 25, (Color){144,238,144,255});
+        DrawText(" TRUE ", Text_Box.x, Text_Box.y+3, 20, BLACK);
     }else{
-        DrawRectangle(Text_Box.x, Text_Box.y+3, 100, 20, RED);
+        DrawRectangle(Text_Box.x, Text_Box.y, 80, 25, (Color){255,105,97,255});
+        DrawText(" FALSE ", Text_Box.x, Text_Box.y+3, 20, BLACK);
     }
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
 }
@@ -169,9 +171,9 @@ void Uplode(Rectangle Sheet, int Pos, std::string Title){
 static void SetOneTrue(std::vector<int> &int_data, int pos){
     for(int i=1; i < (int)int_data.size(); i++){
         if(i != pos){
-            int_data[i] = -1;
+            int_data[i] = 0;
         }else{
-            int_data[i] = -int_data[i];
+            int_data[i] = !int_data[i];
         }
     }
 }
