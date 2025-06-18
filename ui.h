@@ -14,7 +14,7 @@ class UiElements{
     public:
     std::vector<std::string> options;
     std::string str_data = "NULL";
-    std::vector<int> int_data = {-1,0,0};
+    std::vector<int> int_data = {-1,-1,-1};
     std::string tag;
 
     UiElements(std::string Tag, std::vector<std::string> Options = {"NULL"}){
@@ -62,16 +62,19 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = 0-data.int_data[0];
     }
     if(data.int_data[0] > 0){
-        for(int i=1; i< (int)data.options.size(); i++){
+        DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*((int)data.int_data.size()-1), GRAY);
+    }
+    for(int i=1; i< (int)data.options.size(); i++){
+        if(data.int_data[0] > 0){
             Rectangle Dropdown = {x+15+Title.size()*13, y+15+25*i, Width, 25};
-            DrawText(data.options[i].c_str(), Dropdown.x+(Width/2)-data.options[i].size()*12,Dropdown.y+15, 20, BLACK);
+            DrawText(data.options[i].c_str(), Dropdown.x+(Width/2)-data.options[i].size()*12,Dropdown.y, 20, BLACK);
             if(CheckCollisionPointRec(MousePosWorld, Dropdown)){ 
                 DrawRectangleRec(Dropdown, (Color){0,0,0,150});
                 if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
             }
-            if(data.int_data[i] > 0){
-                DrawRectangle(x+15+Title.size()*13, y+15+25*i, 5, 5, GREEN);
-            }
+        }
+        if(data.int_data[i] > 0){
+            DrawText(data.options[i].c_str() ,dropdown.x+(Width/2)-data.options[i].size()*12 ,dropdown.y ,20 ,BLACK);
         }
     }
     x = dropdown.x+dropdown.width ;                                           // change value of x for triangle

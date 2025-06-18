@@ -1,1 +1,2 @@
-dropdown,Text,op1,op2,
+dropdown,make_clear,op1,op2,
+dropdown,Death comes,op1,op2,

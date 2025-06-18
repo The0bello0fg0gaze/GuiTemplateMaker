@@ -294,7 +294,7 @@ void ShowFileFormatEditMode(Rectangle sheet){
         }
         if(CheckCollisionPointRec(MousePosWorld, namebox)){
             DrawRectangleRec(namebox,(Color){0,0,0,100});
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)){
                 stredit = true;
                 streditvalue = &SheetUiData[pos].options[0];
                 streditmaxval = 20;
