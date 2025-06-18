@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+static void SetOneTrue(std::vector<int> &int_data, int pos);
+
 int streditmaxval = 20;
 bool stredit = false;
 std::string* streditvalue;
@@ -40,7 +42,7 @@ void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
         SetMouseCursor(MOUSE_CURSOR_IBEAM);
-        thickness = 1.5f;                                                     // add functioning here
+        thickness = 1.5f;                                                     
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             stredit = true;
             streditvalue = &data.str_data;
@@ -56,7 +58,21 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, dropdown)){ 
-        thickness = 1.5f;                                                     // add functioning here
+        thickness = 1.5f;                                                     
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = 0-data.int_data[0];
+    }
+    if(data.int_data[0] > 0){
+        for(int i=1; i< (int)data.options.size(); i++){
+            Rectangle Dropdown = {x+15+Title.size()*13, y+15+25*i, Width, 25};
+            DrawText(data.options[i].c_str(), Dropdown.x+(Width/2)-data.options[i].size()*12,Dropdown.y+15, 20, BLACK);
+            if(CheckCollisionPointRec(MousePosWorld, Dropdown)){ 
+                DrawRectangleRec(Dropdown, (Color){0,0,0,150});
+                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
+            }
+            if(data.int_data[i] > 0){
+                DrawRectangle(x+15+Title.size()*13, y+15+25*i, 5, 5, GREEN);
+            }
+        }
     }
     x = dropdown.x+dropdown.width ;                                           // change value of x for triangle
     DrawRectangleLinesEx(dropdown, thickness, BLACK);                         //draw the upsided down triangle and the box
@@ -131,3 +147,13 @@ void Uplode(Rectangle Sheet, int Pos, std::string Title){
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
 }
 
+// private functions :---
+static void SetOneTrue(std::vector<int> &int_data, int pos){
+    for(int i=1; i < (int)int_data.size(); i++){
+        if(i != pos){
+            int_data[i] = -1;
+        }else{
+            int_data[i] = -int_data[i];
+        }
+    }
+}
