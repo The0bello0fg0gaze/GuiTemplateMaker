@@ -322,13 +322,13 @@ void EditOptions(){
         DrawRectangleRec(UiObjects[2], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
-            FileFormat.push_back("checkbox,Text,op1,op2,");
+            FileFormat.push_back("checkbox,Text,option1,conclusion2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(3))){
         DrawRectangleRec(UiObjects[3], Color {0,0,0,20});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
-            FileFormat.push_back("radio,Text,op1,op2,");
+            FileFormat.push_back("radio,Text,option1,conclusion2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(4))){
         DrawRectangleRec(UiObjects[4], Color {0,0,0,20});

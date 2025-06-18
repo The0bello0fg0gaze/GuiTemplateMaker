@@ -1,3 +1,5 @@
-dropdown,make_clear,op1,op2,
-dropdown,Death comes,op1,op2,
-checkbox,Text,op1,op2,
+text_field,Text,
+dropdown,Text,op1,op2,
+toggle,Text,
+radio,Text,option1,conclusion2,
+checkbox,Text,option1,conclusion2,

@@ -40,12 +40,12 @@ void updateui(Vector2 mousepos){
 }
 
 // float x = Sheet.x,  y = Sheet.y + Pos,   Width = Sheet.width,  Height = 25;
-void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
+void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){                           //TEXT_FILE
     float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     x = x+15+Title.size()*13;
     Rectangle Text_Box = {x, y+15, Width, 25.0f};
-    DrawText(data.str_data.c_str(), x, y+15, 20, BLACK);
+    DrawText(data.str_data.c_str(), x+15, y+20, 20, BLACK);
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
         SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -96,15 +96,15 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     for(int i = 1; i < (int)data.options.size(); i++ ){
         x += 20;
         DrawText( data.options[i].c_str(), x, y, 20, BLACK);
-        x += data.options[i].size()*14;
+        x += data.options[i].size()*13;
         float thickness = 1.0f;
-        Rectangle checkboxrect = {x, y+5, 10, 10};
+        Rectangle checkboxrect = {x-10, y, 20, 20};
         if(CheckCollisionPointRec(MousePosWorld, checkboxrect)){
             thickness = 1.5f;                                                 // add functioning here
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[i] = 0-data.int_data[i];
         }
         if(data.int_data[i]  > 0){
-            DrawCircle(x+5, y+10, 3.5, BLACK);    
+            DrawCircle(x, y+10, 5, BLACK);    
         }
         DrawRectangleLinesEx(checkboxrect, thickness, BLACK);
     }
@@ -117,10 +117,14 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     for(int i = 1; i < (int)data.options.size(); i++ ){
         x += 20;
         DrawText( data.options[i].c_str(), x, y, 20, BLACK);
-        x += data.options[i].size()*14;
-        DrawCircleLines( x, y+10, 5, BLACK);
-        if(CheckCollisionPointCircle(MousePosWorld, (Vector2){x, y+10}, 5)){
-            DrawCircleLines( x, y+10, 4, BLACK);                          // add functioning here
+        x += data.options[i].size()*13;
+        DrawCircleLines( x, y+7, 10, BLACK);
+        if(CheckCollisionPointCircle(MousePosWorld, (Vector2){x, y+7}, 10)){
+            DrawCircleLines( x, y+7, 8, BLACK);                          // add functioning here
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
+        }
+        if(data.int_data[i]  > 0){
+            DrawCircle(x, y+7, 5, BLACK);    
         }
     }
 }
