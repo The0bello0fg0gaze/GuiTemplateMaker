@@ -6,14 +6,22 @@
 
 static void SetOneTrue(std::vector<int> &int_data, int pos);
 
+Color bg = {18,18,18,255};
+Color mid = {28,28,30,255};
+Color top = {38,38,42,255};
+Color ui = {200,200,255};
+Color red = {255,105,97,255};
+Color slt = {255,255,255,50};
+
 int streditmaxval = 20;
 bool stredit = false;
 std::string* streditvalue;
-
+int streditlowerlimit = 32;
+int streditupperlimit = 125;
 class UiElements{
     public:
     std::vector<std::string> options;
-    std::string str_data = "NULL";
+    std::vector<std::string> str_data = {"NULL","1","1","1"};
     std::vector<int> int_data = {0,0,0};
     std::string tag;
 
@@ -45,14 +53,14 @@ void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){ 
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     x = x+15+Title.size()*13;
     Rectangle Text_Box = {x, y+15, Width, 25.0f};
-    DrawText(data.str_data.c_str(), x+15, y+20, 20, BLACK);
+    DrawText(data.str_data[0].c_str(), x+15, y+20, 20, BLACK);
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
         SetMouseCursor(MOUSE_CURSOR_IBEAM);
         thickness = 1.5f;                                                     
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             stredit = true;
-            streditvalue = &data.str_data;
+            streditvalue = &data.str_data[0];
             streditmaxval = 40;
         }
     }
@@ -69,7 +77,7 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = !data.int_data[0];
     }
     if(data.int_data[0]){
-        DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*((int)data.int_data.size()-1), GRAY);
+        DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*((int)data.int_data.size()-1), (Color){200,200,200,255});
     }
     for(int i=1; i< (int)data.options.size(); i++){
         if(data.int_data[0]){
@@ -151,9 +159,23 @@ void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
 }
 
 void Date(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
-    float x = Sheet.x,  y = Sheet.y + Pos*30;
-    DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
-    DrawText(TextFormat("%d/%d/%d",data.int_data.at(0),data.int_data.at(1),data.int_data.at(2)), x+15+Title.size()*13, y+15, 20, BLACK);           // make it take data from date format
+    float x = Sheet.x,  y = Sheet.y + Pos*30+15;
+    std::vector<std::string>& string = data.str_data;
+    float spacing = (float)string[1].size()*13;
+    DrawText(Title.c_str(), x+15, y, 20, BLACK);
+    x +=  Title.size()*16;
+    Rectangle Day = {x ,y ,spacing+5 ,25};
+    if(CheckCollisionPointRec(MousePosWorld, Day)){
+        DrawRectangleRec(Day,slt);
+        if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)){
+            stredit = true;
+            streditlowerlimit = 45;
+            streditupperlimit = 58;
+            streditvalue = &string[1];
+            streditmaxval = 8;
+        }
+    }
+    DrawText(data.str_data[1].c_str(), x+5, y, 20, BLACK);           // make it take data from date format
 }
 
 void Uplode(Rectangle Sheet, int Pos, std::string Title){

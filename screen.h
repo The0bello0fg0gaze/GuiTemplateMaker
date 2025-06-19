@@ -8,7 +8,6 @@
 #include <string>
 #include <iostream>
 
-
 using namespace std;
 
 void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images);
@@ -67,7 +66,7 @@ void screen1(){
     Rectangle NewTemplate = {75,120,150,200};
     
     BeginMode2D(camera);
-    DrawRectangleRec(NewTemplate, Color {255,255,255,255});
+    DrawRectangleRec(NewTemplate, top);
     
     for (int y = 0; y <= int(Templates.size() / 8); y++){
         for (int x = 0; x <= 7; x++){
@@ -75,13 +74,13 @@ void screen1(){
                 // vector<vector<Rectangle>>
                 Rectangle rect = {(float)225*x+75,(float)250*y+120,(float)150,200};
                 Rectangle menu = {(float)rect.x+128,(float)rect.y,(float)22,18};
-                DrawRectangleRec(rect, WHITE);
-                DrawTexture(Images.at(0), menu.x, menu.y, WHITE);
-                DrawText(Templates.at(8*y+x).c_str(), rect.x+25, rect.y+100, 20, BLACK);  // temp
+                DrawRectangleRec(rect, top);
+                DrawTexture(Images.at(0), menu.x, menu.y, top);
+                DrawText(Templates.at(8*y+x).c_str(), rect.x+25, rect.y+100, 20, WHITE);  // temp
             
                 //check if the menu button has  been clicked
                 if(CheckCollisionPointRec(mousePosWorld, menu)){
-                    DrawRectangleRec(menu, Color {0,0,0,20});
+                    DrawRectangleRec(menu, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                             TempMenu = !TempMenu;
                             TempMenuRect = rect;
@@ -90,7 +89,7 @@ void screen1(){
                 }
                 // check if one of the templates has been clicked            
                 else if(CheckCollisionPointRec(mousePosWorld, rect) && !TempMenu){
-                    DrawRectangleRec(rect, Color {0,0,0,50});
+                    DrawRectangleRec(rect, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         cout << "temp has been clicked " << endl;
                     }
@@ -98,15 +97,14 @@ void screen1(){
             }
         }
     }
-    DrawText(" New + ", NewTemplate.x+(NewTemplate.width / 2)-30, NewTemplate.y+(NewTemplate.height/2), 20, GRAY);
+    DrawText(" New + ", NewTemplate.x+(NewTemplate.width / 2)-30, NewTemplate.y+(NewTemplate.height/2), 20, WHITE);
     
     if(TempMenu == 1){
                 tempmenu(TempMenuRect);
     }
     // Creating a new blank template         
     if(CheckCollisionPointRec(mousePosWorld, NewTemplate)){
-        DrawRectangleRec(NewTemplate, Color {0,0,0,50});
-        
+        DrawRectangleRec(NewTemplate, slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             CreateBlankTemp();
         }
@@ -120,13 +118,13 @@ void screen1(){
     EndMode2D();
     
     //top --------------------------s
-    DrawRectangleRec(Rectangle {0,0,1950,35}, Color {220,220,220,255});
+    DrawRectangleRec(Rectangle {0,0,1950,35}, ui);
     
-    DrawRectangleRec(Exit, Color {255,0,0,255});
+    DrawRectangleRec(Exit, red);
     DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
     
     // bottom -----------------------
-    DrawRectangleRec(Rectangle {0,35,1950,35}, Color {210,210,210,255});
+    DrawRectangleRec(Rectangle {0,35,1950,35}, top);
 }
 
 //-------------------------------------screen 2 --------------------------------------------
@@ -154,7 +152,7 @@ void screen2(){
     BeginMode2D(camera);
         // click and move the template on the screen  
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
-        DrawRectangleRec(sheet, Color {255,255,255,255}); // edit mode
+        DrawRectangleRec(sheet, slt); // edit mode
         
         DrawText(Name.c_str(), sheet.x+350-Name.size()*10, sheet.y, 30, BLACK);  // name
         
@@ -193,7 +191,7 @@ void screen2(){
             int key = GetCharPressed();
 
             while (key > 0) {
-                if ((key >= 32) && (key <= 125) && ((int)streditvalue->size() < streditmaxval)) {
+                if ((key >= streditlowerlimit) && (key <= streditupperlimit) && ((int)streditvalue->size() < streditmaxval)) {
                     streditvalue->push_back((char)key);
                 }
                 key = GetCharPressed();
@@ -214,21 +212,21 @@ void screen2(){
     EndMode2D();
     
     //top ----------------------------------
-    DrawRectangleRec(Rectangle {0,0,1950,35}, Color {210,210,210,255});
-    DrawRectangleRec(Exit, Color {255,0,0,255});
+    DrawRectangleRec(Rectangle {0,0,1950,35}, bg);
+    DrawRectangleRec(Exit, red);
     DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
 
     //bottom ------------------------------
-    DrawRectangleRec(Rectangle {0,35,1950,35}, Color {220,220,220,255}); 
+    DrawRectangleRec(Rectangle {0,35,1950,35}, top); 
 
-    DrawRectangleRec(Rectangle {0,75,300,900}, Color {200,200,200,255}); // tool bar
-    DrawTexture(Images.at(1), UiObjects.at(0).x, UiObjects.at(0).y, WHITE);
-    DrawTexture(Images.at(2), UiObjects.at(1).x, UiObjects.at(1).y, WHITE);
-    DrawTexture(Images.at(3), UiObjects.at(2).x, UiObjects.at(2).y, WHITE);
-    DrawTexture(Images.at(4), UiObjects.at(3).x, UiObjects.at(3).y, WHITE);
-    DrawTexture(Images.at(5), UiObjects.at(4).x, UiObjects.at(4).y, WHITE);
-    DrawTexture(Images.at(6), UiObjects.at(5).x, UiObjects.at(5).y, WHITE);
-    DrawTexture(Images.at(7), UiObjects.at(6).x, UiObjects.at(6).y, WHITE);
+    DrawRectangleRec(Rectangle {0,75,300,900}, slt); // tool bar
+    DrawTexture(Images.at(1), UiObjects.at(0).x, UiObjects.at(0).y, (Color){150,150,150,255});
+    DrawTexture(Images.at(2), UiObjects.at(1).x, UiObjects.at(1).y, (Color){150,150,150,255});
+    DrawTexture(Images.at(3), UiObjects.at(2).x, UiObjects.at(2).y, (Color){150,150,150,255});
+    DrawTexture(Images.at(4), UiObjects.at(3).x, UiObjects.at(3).y, (Color){150,150,150,255});
+    DrawTexture(Images.at(5), UiObjects.at(4).x, UiObjects.at(4).y, (Color){150,150,150,255});
+    DrawTexture(Images.at(6), UiObjects.at(5).x, UiObjects.at(5).y, (Color){150,150,150,255});
+    DrawTexture(Images.at(7), UiObjects.at(6).x, UiObjects.at(6).y, (Color){150,150,150,255});
     
     EditOptions();
 }
@@ -262,7 +260,7 @@ void LoadFileFormat(Rectangle sheet){
 }
 
 void ShowFileFormatEditMode(Rectangle sheet){
-    for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
+    for (int pos = (int)SheetUiData.size()-1; pos >= 0; pos--) {
         UiElements& data = SheetUiData.at(pos);
         std::string tag = data.tag;
         std::string name = data.GetName();  
@@ -285,65 +283,65 @@ void ShowFileFormatEditMode(Rectangle sheet){
         } else if (tag == "uplode") {
             Uplode(sheet, pos+1, name);
         }
+        DrawRectangleRec(deleterect,red);
+        DrawText("-",x-40,y+3,20,BLACK);
         if(CheckCollisionPointRec(MousePosWorld, deleterect)){
-            DrawRectangleRec(deleterect,(Color){255,0,0,200});
+            DrawRectangleRec(deleterect,(Color){0,0,0,100});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 ReadEnable = true;
                 FileFormat.erase(FileFormat.begin()+pos);
             }
         }
         if(CheckCollisionPointRec(MousePosWorld, namebox)){
-            DrawRectangleRec(namebox,(Color){0,0,0,100});
+            DrawRectangleRec(namebox,slt);
             if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)){
                 stredit = true;
                 streditvalue = &SheetUiData[pos].options[0];
                 streditmaxval = 20;
             }
         }
-        DrawRectangleRec(deleterect,(Color){255,0,0,100});
-        DrawText("-",x-40,y+3,20,BLACK);
     }
 }
 
 void EditOptions(){
     if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(0))){
-        DrawRectangleRec(UiObjects[0], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[0], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
             FileFormat.push_back("text_field,Text,");
           }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(1))){
-        DrawRectangleRec(UiObjects[1], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[1], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
-            FileFormat.push_back("dropdown,Text,op1,op2,");
+            FileFormat.push_back("dropdown,DropDown,op1,op2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(2))){
-        DrawRectangleRec(UiObjects[2], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[2], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
-            FileFormat.push_back("checkbox,Text,option1,conclusion2,");
+            FileFormat.push_back("checkbox,CheckBox,option1,conclusion2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(3))){
-        DrawRectangleRec(UiObjects[3], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[3], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
-            FileFormat.push_back("radio,Text,option1,conclusion2,");
+            FileFormat.push_back("radio,Radio,option1,conclusion2,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(4))){
-        DrawRectangleRec(UiObjects[4], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[4], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
             FileFormat.push_back("toggle,Text,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(5))){
-        DrawRectangleRec(UiObjects[5], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[5], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
-            FileFormat.push_back("date,Text,8,11,2006,");
+            FileFormat.push_back("date,Date,8,11,2006,");
         }
     }else if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(6))){
-        DrawRectangleRec(UiObjects[6], Color {0,0,0,20});
+        DrawRectangleRec(UiObjects[6], slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             ReadEnable = true;
             FileFormat.push_back("uplode,Text,");
@@ -357,18 +355,18 @@ void tempmenu(Rectangle temp){
     Rectangle del = {temp.x+90,temp.y+80,60,30};
     Color transparent = {0,0,0,10};
     DrawRectangleRec(view, transparent);
-    DrawText("View", view.x+15, view.y+10, 15, BLACK);
+    DrawText("View", view.x+15, view.y+10, 15, WHITE);
     DrawRectangleRec(edit, transparent);
-    DrawText("Edit", edit.x+20, edit.y+10, 15, BLACK);
+    DrawText("Edit", edit.x+20, edit.y+10, 15, WHITE);
     DrawRectangleRec(del, transparent);
-    DrawText("Delete", del.x+10, del.y+10, 15, BLACK);
+    DrawText("Delete", del.x+10, del.y+10, 15, WHITE);
     if(CheckCollisionPointRec(mousePosWorld, view)){
-        DrawRectangleRec(view, Color {0,0,0,20});
+        DrawRectangleRec(view, slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){ // VIEW
             // ADD VIEW FUNCTION HERE
         }
     }else if(CheckCollisionPointRec(mousePosWorld, edit)){ // EDIT
-        DrawRectangleRec(edit, Color {0,0,0,20});
+        DrawRectangleRec(edit, slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){  
             *screen = 2;
             camera.zoom = 1.0f;
@@ -383,7 +381,7 @@ void tempmenu(Rectangle temp){
             Format.close();
         }
     }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
-        DrawRectangleRec(del, Color {0,0,0,20});
+        DrawRectangleRec(del, slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             if (remove((format_folder+Templates.at(*TempPos)).c_str()) == 0) { //delete the file
                 std::cout << "File deleted successfully." << std::endl;

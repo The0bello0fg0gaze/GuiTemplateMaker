@@ -91,7 +91,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
             update(GetMousePosition());
-            ClearBackground(Color {180,180,180,255});
+            ClearBackground(mid);
             if(screen == 1){// Screen 1 is being loaded onto the screen
                 
                 screen1();
