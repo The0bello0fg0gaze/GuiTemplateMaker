@@ -67,7 +67,7 @@ void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){ 
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
 }
 
-void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
+void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
     float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
     Rectangle dropdown = {x+15+Title.size()*13, y+15, Width, 25};
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
@@ -86,6 +86,11 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
             if(CheckCollisionPointRec(MousePosWorld, Dropdown)){ 
                 DrawRectangleRec(Dropdown, (Color){0,0,0,150});
                 if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
+                else if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && edit){
+                    stredit = true;
+                    streditvalue = &data.options[i];
+                    streditmaxval = 40;
+                }
             }
         }
         if(data.int_data[i]){
@@ -97,7 +102,7 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     DrawTriangle(Vector2 {x-10, y+22}, Vector2 {x-30, y+22}, Vector2 {x-20, y+32}, BLACK); //draw the upsided down triangle and the box
 }
 
-void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
+void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
     float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15;
     DrawText(Title.c_str(), x, y, 20, BLACK);
     x += Title.size()*13;
@@ -110,6 +115,11 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         if(CheckCollisionPointRec(MousePosWorld, checkboxrect)){
             thickness = 1.5f;                                                 // add functioning here
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[i] = !data.int_data[i];
+            else if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && edit){
+                    stredit = true;
+                    streditvalue = &data.options[i];
+                    streditmaxval = 40;
+                }
         }
         if(data.int_data[i]){
             DrawCircle(x, y+10, 5, BLACK);    
@@ -118,7 +128,7 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     }
 }
 
-void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
+void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
     float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15;
     DrawText(Title.c_str(), x, y, 20, BLACK);
     x += Title.size()*13;
@@ -130,6 +140,11 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         if(CheckCollisionPointCircle(MousePosWorld, (Vector2){x, y+7}, 10)){
             DrawCircleLines( x, y+7, 8, BLACK);                          // add functioning here
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
+            else if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && edit){
+                    stredit = true;
+                    streditvalue = &data.options[i];
+                    streditmaxval = 40;
+                }
         }
         if(data.int_data[i]){
             DrawCircle(x, y+7, 5, BLACK);    
@@ -137,7 +152,7 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     }
 }
 
-void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
+void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
     float x = Sheet.x,  y = Sheet.y + Pos*30;
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     Rectangle Text_Box = {x+15+Title.size()*13, y+15, 80, 25.0f};
@@ -183,7 +198,7 @@ void Uplode(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     Rectangle Text_Box = {x+15+Title.size()*13, y+15, Width, 25.0f};
     float thickness = 1.0f;
-    if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
+    if(CheckCollisionPointRec(MousePosWorld, Text_Box)){
         SetMouseCursor(MOUSE_CURSOR_IBEAM);
         thickness = 1.5f;                                                     
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){

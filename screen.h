@@ -157,6 +157,14 @@ void screen2(){
         DrawRectangleRec(sheet, slt); // edit mode
         
         DrawText(Name.c_str(), sheet.x+350-Name.size()*10, sheet.y, 30, BLACK);  // name
+        if(CheckCollisionPointRec(mousePosWorld, (Rectangle){sheet.x,sheet.y,sheet.width,30})){
+            DrawRectangle(sheet.x,sheet.y,sheet.width,30, slt);
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                stredit = true;
+                streditvalue = &Templates[*TempPos];
+                streditmaxval = 20;
+            }
+        }
         
         if(ReadEnable){LoadFileFormat(sheet);}
         ShowFileFormatEditMode(sheet);
@@ -274,13 +282,38 @@ void ShowFileFormatEditMode(Rectangle sheet){
         if (tag == "text_field") {
             Text_Field(sheet, pos+1, name, data);
         } else if (tag == "dropdown") {
-            DropDown(sheet, pos+1, name, data);
+            Rectangle add = {x+sheet.width,y,25,25};
+            DropDown(sheet, pos+1, name, data, true);
+            DrawRectangleRec(add,GREEN);
+            DrawText("+",x-40,y+3,20,BLACK);
+            if(CheckCollisionPointRec(MousePosWorld, add)){
+                DrawRectangleRec(add,(Color){0,0,0,100});
+                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                    ReadEnable = true;
+                    SheetUiData.at(pos).options.push_back( "option" );
+                    CopyUiObjects();
+                }
+            }
+            for(int i=1; i< (int)data.options.size(); i++){
+                if(data.int_data[0]){
+                    Rectangle del = {sheet.width-30, y+15+25*i, 25, 25};
+                    DrawRectangleRec(del,red);
+                    if(CheckCollisionPointRec(MousePosWorld, del)){
+                        DrawRectangleRec(del, (Color){0,0,0,150});
+                        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                            ReadEnable = true;
+                            data.options.erase(data.options.begin()+i);
+                            CopyUiObjects();
+                        }
+                    }
+                }
+            }
         } else if (tag == "checkbox") {
-            CheckBox(sheet, pos+1, name, data);
+            CheckBox(sheet, pos+1, name, data, true);
         } else if (tag == "radio") {
-            Radio(sheet, pos+1, name, data);
+            Radio(sheet, pos+1, name, data, true);
         } else if (tag == "toggle") {
-            Toggle(sheet, pos+1, name, data);
+            Toggle(sheet, pos+1, name, data, true);
         } else if (tag == "date") {
             Date(sheet, pos+1, name, data);
         } else if (tag == "uplode") {
@@ -404,10 +437,10 @@ void tempmenu(Rectangle temp){
 // create a blank template
 void CreateBlankTemp(){
     //check of the value
-    string temp = TextFormat("Unames%i.txt",(int)Templates.size());
+    string temp = TextFormat("Unames%i",(int)Templates.size());
     for(int i=0; i<(int)Templates.size(); i++){
         if(!Templates[i].compare(temp)){
-            temp = TextFormat("Unames%i.txt",(int)(Templates.size()+1));
+            temp = TextFormat("Unames%i",(int)(Templates.size()+1));
         }
     }
     Templates.push_back(temp);
@@ -429,7 +462,7 @@ void CloseFormatFile(){
 
     if (file.is_open()) {
         for(int i=0; i<(int)FileFormat.size(); i++){
-            file << FileFormat[i] << "\n";
+            file << FileFormat[i]<< ".txt" << "\n";
         }
         file.close(); // Close the file after writing
     } else {
