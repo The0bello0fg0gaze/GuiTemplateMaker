@@ -91,7 +91,7 @@ void screen1(){
                 else if(CheckCollisionPointRec(mousePosWorld, rect) && !TempMenu){
                     DrawRectangleRec(rect, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                        cout << "temp has been clicked " << endl;
+                        cout << "temp has been clicked " << endl;                         // feed data to the exel using templte son click here 
                     }
                 }
             }
@@ -145,6 +145,8 @@ void screen2(){
         camera.zoom = 1.0f;
         camera.target = Vector2{0,0};
         camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+        ReadEnable = true;
+        CopyUiObjects();
         CloseFormatFile();
     }
     Rectangle sheet =  {700,200,600,800};   
@@ -156,6 +158,9 @@ void screen2(){
         
         DrawText(Name.c_str(), sheet.x+350-Name.size()*10, sheet.y, 30, BLACK);  // name
         
+        if(ReadEnable){LoadFileFormat(sheet);}
+        ShowFileFormatEditMode(sheet);
+        updateui(mousePosWorld);
         if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(clicked, Rectangle {700,200,600,800})){
             Vector2 delta = GetMouseDelta();
             delta = Vector2Scale(delta, -1.0f/camera.zoom);
@@ -183,9 +188,7 @@ void screen2(){
         {
             camera.target.y += wheel; // up and down movement
         }
-        updateui(mousePosWorld);
-        if(ReadEnable){LoadFileFormat(sheet);}
-        ShowFileFormatEditMode(sheet);
+
 
         if(stredit){                                // take input from key board to a string and replace it with str
             int key = GetCharPressed();
@@ -281,7 +284,7 @@ void ShowFileFormatEditMode(Rectangle sheet){
         } else if (tag == "date") {
             Date(sheet, pos+1, name, data);
         } else if (tag == "uplode") {
-            Uplode(sheet, pos+1, name);
+            Uplode(sheet, pos+1, name, data);
         }
         DrawRectangleRec(deleterect,red);
         DrawText("-",x-40,y+3,20,BLACK);

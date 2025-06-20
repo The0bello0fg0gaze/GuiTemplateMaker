@@ -7,8 +7,8 @@
 static void SetOneTrue(std::vector<int> &int_data, int pos);
 
 Color bg = {18,18,18,255};
-Color mid = {28,28,30,255};
-Color top = {38,38,42,255};
+Color mid = {38,38,42,255};
+Color top = {28,28,30,255};
 Color ui = {200,200,255};
 Color red = {255,105,97,255};
 Color slt = {255,255,255,50};
@@ -172,19 +172,25 @@ void Date(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
             streditlowerlimit = 45;
             streditupperlimit = 58;
             streditvalue = &string[1];
-            streditmaxval = 8;
+            streditmaxval = 10;
         }
     }
     DrawText(data.str_data[1].c_str(), x+5, y, 20, BLACK);           // make it take data from date format
 }
 
-void Uplode(Rectangle Sheet, int Pos, std::string Title){
+void Uplode(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     Rectangle Text_Box = {x+15+Title.size()*13, y+15, Width, 25.0f};
     float thickness = 1.0f;
     if(CheckCollisionPointRec(MousePosWorld, Text_Box)){ 
-        thickness = 1.5f;                                                     // add functioning here
+        SetMouseCursor(MOUSE_CURSOR_IBEAM);
+        thickness = 1.5f;                                                     
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            stredit = true;
+            streditvalue = &data.str_data[0];
+            streditmaxval = 80;
+        }
     }
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
 }
