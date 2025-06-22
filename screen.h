@@ -45,11 +45,22 @@ vector<string> FileFormat; //store the current file loaded
 Rectangle TempMenuRect = {0,0,0,0};
 Rectangle Exit;
 
+vector<Rectangle> UiObjects = {
+    {50,150,200,59}, //text_field 0
+    {50,250,200,59}, //dropdown 1
+    {50,350,200,59}, //checkbox 2
+    {50,450,200,59}, //radio 3
+    {50,550,200,59}, //toggle 4
+    {50,650,200,59}, //date 5
+    {50,750,200,59}  //uplode 6
+};
+Vector2 clicked = {0,0};
 // update variable each loop
 void update(Vector2 mousepos){
     mousePosWorld = GetScreenToWorld2D(mousepos, camera);
     mousePosWorld = {mousePosWorld.x, mousePosWorld.y+15};
 }
+
 // update varibale once
 void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images){
     TempPos = tempPos;
@@ -128,16 +139,6 @@ void screen1(){
 }
 
 //-------------------------------------screen 2 --------------------------------------------
-vector<Rectangle> UiObjects = {
-    {50,150,200,59}, //text_field 0
-    {50,250,200,59}, //dropdown 1
-    {50,350,200,59}, //checkbox 2
-    {50,450,200,59}, //radio 3
-    {50,550,200,59}, //toggle 4
-    {50,650,200,59}, //date 5
-    {50,750,200,59}  //uplode 6
-};
-Vector2 clicked = {0,0};
 
 void screen2(){
     if( WindowShouldClose() ){
@@ -282,10 +283,10 @@ void ShowFileFormatEditMode(Rectangle sheet){
         if (tag == "text_field") {
             Text_Field(sheet, pos+1, name, data);
         } else if (tag == "dropdown") {
-            Rectangle add = {x+sheet.width,y,25,25};
             DropDown(sheet, pos+1, name, data, true);
+            Rectangle add = {x+sheet.width,y,25,25};
             DrawRectangleRec(add,GREEN);
-            DrawText("+",x-40,y+3,20,BLACK);
+            DrawText("+",add.x+5,add.y,20,BLACK);
             if(CheckCollisionPointRec(MousePosWorld, add)){
                 DrawRectangleRec(add,(Color){0,0,0,100});
                 if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -296,8 +297,9 @@ void ShowFileFormatEditMode(Rectangle sheet){
             }
             for(int i=1; i< (int)data.options.size(); i++){
                 if(data.int_data[0]){
-                    Rectangle del = {sheet.width-30, y+15+25*i, 25, 25};
+                    Rectangle del = {sheet.x+sheet.width, y+25*i, 25, 25};
                     DrawRectangleRec(del,red);
+                    DrawText("-",del.x+5,del.y+3,20,BLACK);
                     if(CheckCollisionPointRec(MousePosWorld, del)){
                         DrawRectangleRec(del, (Color){0,0,0,150});
                         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -310,6 +312,32 @@ void ShowFileFormatEditMode(Rectangle sheet){
             }
         } else if (tag == "checkbox") {
             CheckBox(sheet, pos+1, name, data, true);
+            Rectangle add = {x+sheet.width,y,25,25};
+            DrawRectangleRec(add,GREEN);
+            DrawText("+",add.x+5,add.y,20,BLACK);
+            if(CheckCollisionPointRec(MousePosWorld, add)){
+                DrawRectangleRec(add,(Color){0,0,0,100});
+                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                    ReadEnable = true;
+                    SheetUiData.at(pos).options.push_back( "option" );
+                    CopyUiObjects();
+                }
+            }
+            for(int i=1; i< (int)data.options.size(); i++){
+                if(data.int_data[0]){
+                    Rectangle del = {sheet.x+sheet.width-30, y+15+25*i, 25, 25};
+                    DrawRectangleRec(del,red);
+                    DrawText("-",del.x+5,del.y,20,BLACK);
+                    if(CheckCollisionPointRec(MousePosWorld, del)){
+                        DrawRectangleRec(del, (Color){0,0,0,150});
+                        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                            ReadEnable = true;
+                            data.options.erase(data.options.begin()+i);
+                            CopyUiObjects();
+                        }
+                    }
+                }
+            }
         } else if (tag == "radio") {
             Radio(sheet, pos+1, name, data, true);
         } else if (tag == "toggle") {

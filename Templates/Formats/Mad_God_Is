@@ -1,0 +1,11 @@
+text_field,Text,.txt
+dropdown,DropDown,the game ,option,.txt
+radio,Radio,option1,conclusion2,.txt
+radio,Radio,option1,conclusion2,.txt
+text_field,Text,.txt
+dropdown,DropDown,op1,op2,.txt
+checkbox,CheckBox,option1,conclusion2,option,.txt
+checkbox,CheckBox,option1,conclusion2,.txt
+radio,Radio,option1,conclusion2,.txt
+toggle,Text,.txt
+date,Date,8,11,2006,.txt
