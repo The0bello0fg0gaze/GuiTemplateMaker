@@ -77,7 +77,7 @@ void screen1(){
     Rectangle NewTemplate = {75,120,150,200};
     
     BeginMode2D(camera);
-    DrawRectangleRec(NewTemplate, top);
+    DrawRectangleRec(NewTemplate, ui);
     
     for (int y = 0; y <= int(Templates.size() / 8); y++){
         for (int x = 0; x <= 7; x++){
@@ -85,8 +85,8 @@ void screen1(){
                 // vector<vector<Rectangle>>
                 Rectangle rect = {(float)225*x+75,(float)250*y+120,(float)150,200};
                 Rectangle menu = {(float)rect.x+128,(float)rect.y,(float)22,18};
-                DrawRectangleRec(rect, top);
-                DrawTexture(Images.at(0), menu.x, menu.y, top);
+                DrawRectangleRec(rect, ui);
+                DrawTexture(Images.at(0), menu.x, menu.y, ui);
                 DrawText(Templates.at(8*y+x).c_str(), rect.x+25, rect.y+100, 20, WHITE);  // temp
             
                 //check if the menu button has  been clicked
@@ -102,7 +102,7 @@ void screen1(){
                 else if(CheckCollisionPointRec(mousePosWorld, rect) && !TempMenu){
                     DrawRectangleRec(rect, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                        cout << "temp has been clicked " << endl;                         // feed data to the exel using templte son click here 
+                        *screen = 3;                         // feed data to the exel using templte son click here 
                     }
                 }
             }
@@ -129,13 +129,13 @@ void screen1(){
     EndMode2D();
     
     //top --------------------------s
-    DrawRectangleRec(Rectangle {0,0,1950,35}, ui);
+    DrawRectangleRec(Rectangle {0,0,1950,35}, top);
     
     DrawRectangleRec(Exit, red);
     DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
     
     // bottom -----------------------
-    DrawRectangleRec(Rectangle {0,35,1950,35}, top);
+    DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
 }
 
 //-------------------------------------screen 2 --------------------------------------------
@@ -224,12 +224,12 @@ void screen2(){
     EndMode2D();
     
     //top ----------------------------------
-    DrawRectangleRec(Rectangle {0,0,1950,35}, bg);
+    DrawRectangleRec(Rectangle {0,0,1950,35}, top);
     DrawRectangleRec(Exit, red);
     DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
 
     //bottom ------------------------------
-    DrawRectangleRec(Rectangle {0,35,1950,35}, top); 
+    DrawRectangleRec(Rectangle {0,35,1950,35}, ui); 
 
     DrawRectangleRec(Rectangle {0,75,300,900}, slt); // tool bar
     DrawTexture(Images.at(1), UiObjects.at(0).x, UiObjects.at(0).y, (Color){150,150,150,255});
@@ -243,6 +243,27 @@ void screen2(){
     EditOptions();
 }
 
+void screen3(){
+    if( WindowShouldClose() ){
+        *screen = 1;
+        camera.zoom = 1.0f; 
+        camera.target = Vector2{0,0};
+        camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+            
+    }
+    BeginMode2D(camera);
+
+        //top --------------------------s
+        DrawRectangleRec(Rectangle {0,0,1950,35}, top);
+        DrawRectangleRec(Exit, red);
+        DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
+
+        // bottom -----------------------
+        DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
+
+    EndMode2D();
+    
+}
 //------------------------------ tepmlate menu-------------------------------------------------
 void LoadFileFormat(Rectangle sheet){
     string tag;

@@ -91,7 +91,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
             update(GetMousePosition());
-            ClearBackground(mid);
+            ClearBackground(bg);
             if(screen == 1){// Screen 1 is being loaded onto the screen
                 
                 screen1();
@@ -99,6 +99,10 @@ int main(void)
             }else if(screen == 2){
                 
                 screen2 ();     
+   
+            }else if(screen == 3){
+                
+                screen3 ();     
    
             }
             

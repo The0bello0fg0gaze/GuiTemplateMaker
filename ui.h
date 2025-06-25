@@ -6,10 +6,9 @@
 
 static void SetOneTrue(std::vector<int> &int_data, int pos);
 
-Color bg = {18,18,18,255};
-Color mid = {38,38,42,255};
-Color top = {28,28,30,255};
-Color ui = {200,200,255};
+Color bg = {68,68,68,255};
+Color top = {57,57,57,255};
+Color ui = {113,113,113,255};
 Color red = {255,105,97,255};
 Color slt = {255,255,255,50};
 
