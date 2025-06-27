@@ -21,7 +21,7 @@ class UiElements{
     public:
     std::vector<std::string> options;
     std::vector<std::string> str_data = {"NULL","1","1","1"};
-    std::vector<int> int_data = {0,0,0};
+    std::vector<int> int_data = {0, 0, 0}; // default size for dropdowns and checkboxes
     std::string tag;
 
     UiElements(std::string Tag, std::vector<std::string> Options = {"NULL"}){
@@ -76,7 +76,8 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = !data.int_data[0];
     }
     if(data.int_data[0]){
-        DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*((int)data.int_data.size()-1), (Color){200,200,200,255});
+        std::cout << data.options.size()-1 << std::endl;
+        DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*(data.options.size()-1), (Color){200,200,200,255});
     }
     for(int i=1; i< (int)data.options.size(); i++){
         if(data.int_data[0]){

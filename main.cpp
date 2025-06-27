@@ -104,6 +104,10 @@ int main(void)
                 
                 screen3 ();     
    
+            }else if(screen == 4){
+                
+                screen4 ();     
+   
             }
             
         if(CheckCollisionPointRec(GetMousePosition(), Exit)){ 
@@ -140,33 +144,4 @@ void CloseFiles(){
     } else {
         std::cout << "Unable to open file Templates\n";
     }
-}
-
-
-
-//convert string from x-y-width-height- format to rectangle
-Rectangle MakeRectangle(string str){
-    Rectangle temp = {0,0,0,0};
-    vector<int> temprect;
-    string rect;
-    for(int i=0; i <= int(str.length()); i++){
-        if(str[i] != '-'){
-            rect.push_back(str[i]);
-        }else if(str[i] == '\n'){
-            temprect.push_back(stoi(rect));
-            temp.x = temprect[0];
-            temp.y = temprect[1];
-            temp.width = temprect[2];
-            temp.height = temprect[3];
-            return temp;
-        }else{
-            temprect.push_back(stoi(rect));
-            rect.clear();
-        }
-    }
-    temp.x = temprect[0];
-    temp.y = temprect[1];
-    temp.width = temprect[2];
-    temp.height = temprect[3];
-    return temp;
 }
