@@ -67,7 +67,7 @@ void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
 }
 
-void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
+void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit = false){
     float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
     Rectangle dropdown = {x+15+Title.size()*13, y+15, Width, 25};
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
@@ -102,7 +102,7 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
     DrawTriangle(Vector2 {x-10, y+22}, Vector2 {x-30, y+22}, Vector2 {x-20, y+32}, BLACK); //draw the upsided down triangle and the box
 }
 
-void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
+void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit = false){
     float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15;
     DrawText(Title.c_str(), x, y, 20, BLACK);
     x += Title.size()*13;
@@ -128,7 +128,7 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
     }
 }
 
-void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
+void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit = false){
     float x = Sheet.x+15,  y = Sheet.y + Pos*30 +15;
     DrawText(Title.c_str(), x, y, 20, BLACK);
     x += Title.size()*13;
@@ -152,7 +152,7 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool e
     }
 }
 
-void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit){
+void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool edit = false){
     float x = Sheet.x,  y = Sheet.y + Pos*30;
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     Rectangle Text_Box = {x+15+Title.size()*13, y+15, 80, 25.0f};

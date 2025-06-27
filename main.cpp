@@ -87,8 +87,27 @@ int main(void)
     while (true)    // Detect window close button or ESC key
     {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-        // Draw
-        //----------------------------------------------------------------------------------
+        
+        if(stredit){                                // take input from key board to a string and replace it with str
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((key >= streditlowerlimit) && (key <= streditupperlimit) && ((int)streditvalue->size() < streditmaxval)) {
+                    streditvalue->push_back((char)key);
+                }
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
+                streditvalue->pop_back();  // Removes last character
+            }
+            if(previousvalue != streditvalue){
+                stredit = false;
+                previousvalue = streditvalue;
+                CopyUiObjects();
+            }
+        }
+
         BeginDrawing();
             update(GetMousePosition());
             ClearBackground(bg);
@@ -131,7 +150,7 @@ int main(void)
     return 0;
 }
 
-// close all the files 
+// close all the template files 
 void CloseFiles(){
     std::fstream file;
     file.open(templates_file, std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists

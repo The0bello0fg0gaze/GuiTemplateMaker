@@ -150,8 +150,8 @@ void screen2(){ // Edit template screen
         camera.target = Vector2{0,0};
         camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
         ReadEnable = true;
-        CopyUiObjects();
         CloseFormatFile();
+        CopyUiObjects();
     }
     Rectangle sheet =  {700,200,600,800};   
     string Name = Templates[*TempPos];
@@ -173,57 +173,28 @@ void screen2(){ // Edit template screen
         if(ReadEnable){LoadFileFormat(sheet);}
         ShowFileFormatEditMode(sheet);
         updateui(mousePosWorld);
-        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(clicked, Rectangle {700,200,600,800})){
-            Vector2 delta = GetMouseDelta();
-            delta = Vector2Scale(delta, -1.0f/camera.zoom);
-            camera.target = Vector2Add(camera.target, delta);
-        }else{ // zoom in and out of the template
-            float wheel = GetMouseWheelMove();
-            if (IsKeyDown(KEY_LEFT_CONTROL) && wheel != 0 )
-            {
-                // Get the world point that is under the mouse
-                Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosWorld, camera);
 
-                camera.offset = mousePosWorld;
+        float wheel = GetMouseWheelMove();
+        if (IsKeyDown(KEY_LEFT_CONTROL) && wheel != 0 )
+        {
+            // Get the world point that is under the mouse
+            Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosWorld, camera);
 
-                // Set the target to match, so that the camera maps the world space point 
-                camera.target = mouseWorldPos;
+            camera.offset = mousePosWorld;
 
-                // Zoom increment
-                // Uses log scaling to provide consistent zoom speed
-                float scale = 0.2f*wheel;
-                camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
-            }
+            // Set the target to match, so that the camera maps the world space point 
+            camera.target = mouseWorldPos;
+
+            // Zoom increment
+            // Uses log scaling to provide consistent zoom speed
+            float scale = 0.2f*wheel;
+            camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
         }
-        float wheel = GetMouseWheelMove() * 20;
         if (wheel != 0 )
         {
-            camera.target.y += wheel; // up and down movement
+            camera.target.y -= wheel * 20; // up and down movement
         }
 
-
-        if(stredit){                                // take input from key board to a string and replace it with str
-            int key = GetCharPressed();
-
-            while (key > 0) {
-                if ((key >= streditlowerlimit) && (key <= streditupperlimit) && ((int)streditvalue->size() < streditmaxval)) {
-                    streditvalue->push_back((char)key);
-                }
-                key = GetCharPressed();
-            }
-
-            if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
-                streditvalue->pop_back();  // Removes last character
-            }
-            if(previousvalue != streditvalue){
-                stredit = false;
-                previousvalue = streditvalue;
-                CopyUiObjects();
-            }
-        }
-        
-        
-                    
     EndMode2D();
     
     //top ----------------------------------
@@ -247,15 +218,23 @@ void screen2(){ // Edit template screen
 }
 
 void screen3(){ // Data entry screen
+
     if( WindowShouldClose() ){
         *screen = 1;
         camera.zoom = 1.0f; 
         camera.target = Vector2{0,0};
         camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+        CopyUiObjects();
+        CloseFormatFile();
             
     }
+
     Rectangle sheet =  {700,200,600,800};   
     string Name = Templates[*TempPos];
+
+    if(ReadEnable){LoadFileFormat(sheet);}
+    updateui(mousePosWorld);
+
     BeginMode2D(camera);
         // click and move the template on the screen  
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
@@ -271,53 +250,24 @@ void screen3(){ // Data entry screen
             }
         }
         
-        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(clicked, Rectangle {700,200,600,800})){
-            Vector2 delta = GetMouseDelta();
-            delta = Vector2Scale(delta, -1.0f/camera.zoom);
-            camera.target = Vector2Add(camera.target, delta);
-        }else{ // zoom in and out of the template
-            float wheel = GetMouseWheelMove();
-            if (IsKeyDown(KEY_LEFT_CONTROL) && wheel != 0 )
-            {
-                // Get the world point that is under the mouse
-                Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosWorld, camera);
-
-                camera.offset = mousePosWorld;
-
-                // Set the target to match, so that the camera maps the world space point 
-                camera.target = mouseWorldPos;
-
-                // Zoom increment
-                // Uses log scaling to provide consistent zoom speed
-                float scale = 0.2f*wheel;
-                camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
-            }
-        }
-        float wheel = GetMouseWheelMove() * 20;
-        if (wheel != 0 )
+        float wheel = GetMouseWheelMove();
+        if (IsKeyDown(KEY_LEFT_CONTROL) && wheel != 0 )
         {
-            camera.target.y += wheel; // up and down movement
-        }
+             // Get the world point that is under the mouse
+            Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosWorld, camera);
 
+            camera.offset = mousePosWorld;
 
-        if(stredit){                                // take input from key board to a string and replace it with str
-            int key = GetCharPressed();
+            // Set the target to match, so that the camera maps the world space point 
+            camera.target = mouseWorldPos;
 
-            while (key > 0) {
-                if ((key >= streditlowerlimit) && (key <= streditupperlimit) && ((int)streditvalue->size() < streditmaxval)) {
-                    streditvalue->push_back((char)key);
-                }
-                key = GetCharPressed();
-            }
-
-            if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
-                streditvalue->pop_back();  // Removes last character
-            }
-            if(previousvalue != streditvalue){
-                stredit = false;
-                previousvalue = streditvalue;
-                CopyUiObjects();
-            }
+            // Zoom increment
+            // Uses log scaling to provide consistent zoom speed
+            float scale = 0.2f*wheel;
+            camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
+        }else if (wheel != 0 )
+        {
+            camera.target.y -= wheel * 20; // up and down movement
         }
         
         
@@ -392,13 +342,13 @@ void ShowFileFormatDataEntryMode(Rectangle sheet){
         if (tag == "text_field") {
             Text_Field(sheet, pos+1, name, data);
         } else if (tag == "dropdown") {
-            DropDown(sheet, pos+1, name, data, false);
+            DropDown(sheet, pos+1, name, data);
         } else if (tag == "checkbox") {
-            CheckBox(sheet, pos+1, name, data, false);
+            CheckBox(sheet, pos+1, name, data);
         } else if (tag == "radio") {
-            Radio(sheet, pos+1, name, data, false);
+            Radio(sheet, pos+1, name, data);
         } else if (tag == "toggle") {
-            Toggle(sheet, pos+1, name, data, false);
+            Toggle(sheet, pos+1, name, data);
         } else if (tag == "date") {
             Date(sheet, pos+1, name, data);
         } else if (tag == "uplode") {
@@ -644,8 +594,7 @@ void CloseFormatFile(){
     } else {
         std::cout << "Unable to open file FileFormat\n";
     }
-
-    SheetUiData.clear();
+    SheetUiData.clear(); // clear the vector of objects
 }
 
 // Copy the ui objects from the vector to FileFormat
