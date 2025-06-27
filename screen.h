@@ -11,6 +11,10 @@
 using namespace std;
 
 void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images);
+void screen1();
+void screen2();
+void screen3();
+void screen4();
 void update(Vector2 mousepos);
 void screen1();
 void screen2();
@@ -21,6 +25,7 @@ void LoadFileFormat(Rectangle sheet);
 void CloseFormatFile();
 void ShowFileFormatEditMode(Rectangle sheet);
 void CopyUiObjects();
+void ShowFileFormatDataEntryMode(Rectangle sheet);
 
 const int screenWidth = GetScreenWidth();
 const int screenHeight = GetScreenHeight();
@@ -73,9 +78,7 @@ void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string
     Images = images;
 }
 
-// ---------------------------------------- screen 1 ----------------------------------------------------
-
-void screen1(){
+void screen1(){  //Main menu screen
     Rectangle NewTemplate = {75,120,150,200};
     
     BeginMode2D(camera);
@@ -140,9 +143,7 @@ void screen1(){
     DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
 }
 
-//-------------------------------------screen 2 --------------------------------------------
-
-void screen2(){
+void screen2(){ // Edit template screen
     if( WindowShouldClose() ){
         *screen = 1;
         camera.zoom = 1.0f;
@@ -214,9 +215,9 @@ void screen2(){
             if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
                 streditvalue->pop_back();  // Removes last character
             }
-            if(IsKeyDown(KEY_ENTER)){
+            if(previousvalue != streditvalue){
                 stredit = false;
-                streditvalue = nullptr;
+                previousvalue = streditvalue;
                 CopyUiObjects();
             }
         }
@@ -245,7 +246,7 @@ void screen2(){
     EditOptions();
 }
 
-void screen3(){
+void screen3(){ // Data entry screen
     if( WindowShouldClose() ){
         *screen = 1;
         camera.zoom = 1.0f; 
@@ -312,31 +313,28 @@ void screen3(){
             if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
                 streditvalue->pop_back();  // Removes last character
             }
-            if(IsKeyDown(KEY_ENTER)){
+            if(previousvalue != streditvalue){
                 stredit = false;
-                streditvalue = nullptr;
+                previousvalue = streditvalue;
                 CopyUiObjects();
             }
         }
         
         
-                    
+    ShowFileFormatDataEntryMode(sheet);         
     EndMode2D();
+    //top --------------------------
+    DrawRectangleRec(Rectangle {0,0,1950,35}, top);
+    DrawRectangleRec(Exit, red);
+    DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
 
-        //top --------------------------s
-        DrawRectangleRec(Rectangle {0,0,1950,35}, top);
-        DrawRectangleRec(Exit, red);
-        DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
-
-        // bottom -----------------------
-        DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
+    // bottom -----------------------
+    DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
 
     
 }
 
-//------------------------------ tepmlate menu-------------------------------------------------
-
-void screen4(){
+void screen4(){ // Data view screen
     if( WindowShouldClose() ){
         *screen = 1;
         camera.zoom = 1.0f; 
@@ -353,6 +351,8 @@ void screen4(){
     DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
 }
 
+// Functions in use
+//load the file format from the file and store it in a vector of objects
 void LoadFileFormat(Rectangle sheet){
     string tag;
     vector<string> data;
@@ -379,6 +379,35 @@ void LoadFileFormat(Rectangle sheet){
         data.clear();
     }
 }
+
+// show ui elements in edit mode screen 3
+
+void ShowFileFormatDataEntryMode(Rectangle sheet){
+    for (int pos = (int)SheetUiData.size()-1; pos >= 0; pos--) {
+        UiElements& data = SheetUiData.at(pos);
+        std::string tag = data.tag;
+        std::string name = data.GetName();  
+        //float x = sheet.x + 15,  y = sheet.y+ 15 + (pos+1)*30;
+
+        if (tag == "text_field") {
+            Text_Field(sheet, pos+1, name, data);
+        } else if (tag == "dropdown") {
+            DropDown(sheet, pos+1, name, data, false);
+        } else if (tag == "checkbox") {
+            CheckBox(sheet, pos+1, name, data, false);
+        } else if (tag == "radio") {
+            Radio(sheet, pos+1, name, data, false);
+        } else if (tag == "toggle") {
+            Toggle(sheet, pos+1, name, data, false);
+        } else if (tag == "date") {
+            Date(sheet, pos+1, name, data);
+        } else if (tag == "uplode") {
+            Uplode(sheet, pos+1, name, data);
+        }
+    }
+}
+
+// show ui elements in edit mode screen 2
 
 void ShowFileFormatEditMode(Rectangle sheet){
     for (int pos = (int)SheetUiData.size()-1; pos >= 0; pos--) {
@@ -476,6 +505,8 @@ void ShowFileFormatEditMode(Rectangle sheet){
     }
 }
 
+// Add ui objects to the vector FileFormat screen 2
+
 void EditOptions(){
     if(CheckCollisionPointRec(GetMousePosition(), UiObjects.at(0))){
         DrawRectangleRec(UiObjects[0], slt);
@@ -521,6 +552,8 @@ void EditOptions(){
         }
     }
 }
+
+// show the template menu screen 1
 
 void tempmenu(Rectangle temp){
     Rectangle view = {temp.x+90,temp.y+20,60,30};
@@ -574,7 +607,8 @@ void tempmenu(Rectangle temp){
     }
 }
 
-// create a blank template
+// Create a new blank template file screen 1
+
 void CreateBlankTemp(){
     //check of the value
     string temp = TextFormat("Unames%i",(int)Templates.size());
@@ -596,6 +630,8 @@ void CreateBlankTemp(){
     
 }
 
+// Close all the files
+
 void CloseFormatFile(){
     std::fstream file;
     file.open(TextFormat("Templates/Formats/%s",Templates.at(*TempPos).c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
@@ -611,6 +647,8 @@ void CloseFormatFile(){
 
     SheetUiData.clear();
 }
+
+// Copy the ui objects from the vector to FileFormat
 
 void CopyUiObjects(){
     FileFormat.clear();

@@ -12,9 +12,10 @@ Color ui = {113,113,113,255};
 Color red = {255,105,97,255};
 Color slt = {255,255,255,50};
 
+std::string* previousvalue = nullptr;
 int streditmaxval = 20;
 bool stredit = false;
-std::string* streditvalue;
+std::string* streditvalue = nullptr;
 int streditlowerlimit = 32;
 int streditupperlimit = 125;
 class UiElements{
@@ -47,7 +48,7 @@ void updateui(Vector2 mousepos){
 }
 
 // float x = Sheet.x,  y = Sheet.y + Pos,   Width = Sheet.width,  Height = 25;
-void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){                           //TEXT_FILE
+void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float x = Sheet.x,  y = Sheet.y + Pos*30,   Width = Sheet.width-20-Title.size()*13;
     DrawText(Title.c_str(), x+15, y+15, 20, BLACK);
     x = x+15+Title.size()*13;
@@ -76,7 +77,6 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) data.int_data[0] = !data.int_data[0];
     }
     if(data.int_data[0]){
-        std::cout << data.options.size()-1 << std::endl;
         DrawRectangle(x+15+Title.size()*13, y+15+25, Width, 25*(data.options.size()-1), (Color){200,200,200,255});
     }
     for(int i=1; i< (int)data.options.size(); i++){
