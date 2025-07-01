@@ -59,7 +59,6 @@ vector<Rectangle> UiObjects = {
     {50,650,200,59}, //date 5
     {50,750,200,59}  //uplode 6
 };
-Vector2 clicked = {0,0};
 // update variable each loop
 void update(Vector2 mousepos){
     mousePosWorld = GetScreenToWorld2D(mousepos, camera);
@@ -107,7 +106,15 @@ void screen1(){  //Main menu screen
                 else if(CheckCollisionPointRec(mousePosWorld, rect) && !TempMenu){
                     DrawRectangleRec(rect, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                        *TempPos = (8*y)+x;
                         *screen = 3;                         // feed data to the exel using templte son click here 
+                        ifstream Format((format_folder+Templates.at(*TempPos)+".txt").c_str());
+                        string s;
+                        FileFormat.clear();
+                        while(getline(Format, s)){
+                            FileFormat.push_back(s);
+                        }
+                        Format.close();
                     }
                 }
             }
@@ -150,14 +157,12 @@ void screen2(){ // Edit template screen
         camera.target = Vector2{0,0};
         camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
         ReadEnable = true;
-        CloseFormatFile();
         CopyUiObjects();
+        CloseFormatFile();
     }
     Rectangle sheet =  {700,200,600,800};   
     string Name = Templates[*TempPos];
     BeginMode2D(camera);
-        // click and move the template on the screen  
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
         DrawRectangleRec(sheet, slt); // edit mode
         
         DrawText(Name.c_str(), sheet.x+350-Name.size()*10, sheet.y, 30, BLACK);  // name
@@ -236,8 +241,6 @@ void screen3(){ // Data entry screen
     updateui(mousePosWorld);
 
     BeginMode2D(camera);
-        // click and move the template on the screen  
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {clicked = mousePosWorld;}
         DrawRectangleRec(sheet, slt); // edit mode
         
         DrawText(Name.c_str(), sheet.x+350-Name.size()*10, sheet.y, 30, BLACK);  // name
@@ -531,7 +534,7 @@ void tempmenu(Rectangle temp){
             camera.zoom = 1.0f;
             camera.target = Vector2{0,0};
             camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
-            ifstream Format((format_folder+Templates.at(*TempPos)).c_str());
+            ifstream Format((format_folder+Templates.at(*TempPos)+".txt").c_str());
             string s;
             FileFormat.clear();
             while(getline(Format, s)){
@@ -542,7 +545,7 @@ void tempmenu(Rectangle temp){
     }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
         DrawRectangleRec(del, slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            if (remove((format_folder+Templates.at(*TempPos)).c_str()) == 0) { //delete the file
+            if (remove((format_folder+Templates.at(*TempPos)+".txt").c_str()) == 0) { //delete the file
                 std::cout << "File deleted successfully." << std::endl;
             } else {
                 perror("Failed to delete file");
@@ -570,11 +573,11 @@ void CreateBlankTemp(){
     Templates.push_back(temp);
     
     fstream file; // Object of fstream class
-    file.open(format_folder+temp, ios::out); // Open file "test.txt" in out(write) mode
+    file.open(format_folder+temp+".txt", ios::out); // Open file "test.txt" in out(write) mode
     if (!file) { // If file is not created, return error
-        std::cout << "Error in file creation!" << format_folder+temp << std::endl;
+        std::cout << "Error in file creation!" << format_folder+temp+".txt" << std::endl;
     } else {
-        std::cout << "File Creation successful." << format_folder+temp << std::endl;
+        std::cout << "File Creation successful." << format_folder+temp+".txt" << std::endl;
     }
     file.close();
     
@@ -584,11 +587,11 @@ void CreateBlankTemp(){
 
 void CloseFormatFile(){
     std::fstream file;
-    file.open(TextFormat("Templates/Formats/%s",Templates.at(*TempPos).c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
+    file.open(TextFormat("Templates/Formats/%s", (Templates.at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
     if (file.is_open()) {
         for(int i=0; i<(int)FileFormat.size(); i++){
-            file << FileFormat[i]<< ".txt" << "\n";
+            file << FileFormat[i] << "\n";
         }
         file.close(); // Close the file after writing
     } else {
@@ -600,6 +603,11 @@ void CloseFormatFile(){
 // Copy the ui objects from the vector to FileFormat
 
 void CopyUiObjects(){
+    std::cout << "Copying UI objects to FileFormat\n";
+    if (SheetUiData.empty()) {
+        std::cout << "No UI objects to copy.\n";
+        return;
+    }
     FileFormat.clear();
     for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
         UiElements& data = SheetUiData.at(pos);

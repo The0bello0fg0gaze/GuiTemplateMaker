@@ -11,11 +11,10 @@ Color top = {57,57,57,255};
 Color ui = {113,113,113,255};
 Color red = {255,105,97,255};
 Color slt = {255,255,255,50};
-
-std::string* previousvalue = nullptr;
+std::string previousvalue = "common";
 int streditmaxval = 20;
 bool stredit = false;
-std::string* streditvalue = nullptr;
+std::string* streditvalue = &previousvalue; // pointer to the string that is being edited
 int streditlowerlimit = 32;
 int streditupperlimit = 125;
 class UiElements{

@@ -90,7 +90,7 @@ int main(void)
         
         if(stredit){                                // take input from key board to a string and replace it with str
             int key = GetCharPressed();
-
+            previousvalue = *streditvalue;
             while (key > 0) {
                 if ((key >= streditlowerlimit) && (key <= streditupperlimit) && ((int)streditvalue->size() < streditmaxval)) {
                     streditvalue->push_back((char)key);
@@ -101,10 +101,12 @@ int main(void)
             if (IsKeyPressed(KEY_BACKSPACE) && streditvalue->size() > 0) {
                 streditvalue->pop_back();  // Removes last character
             }
-            if(previousvalue != streditvalue){
-                stredit = false;
-                previousvalue = streditvalue;
+            if(previousvalue != *streditvalue){
+                previousvalue = *streditvalue;
                 CopyUiObjects();
+            }
+            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                stredit = false;  // Exit edit mode
             }
         }
 
