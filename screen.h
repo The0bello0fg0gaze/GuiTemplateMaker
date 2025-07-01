@@ -229,6 +229,7 @@ void screen3(){ // Data entry screen
         camera.zoom = 1.0f; 
         camera.target = Vector2{0,0};
         camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+        ReadEnable = true;
         CopyUiObjects();
         CloseFormatFile();
             
