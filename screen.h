@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include "rlgl.h"
 #include "raymath.h"
 #include "ui.h"
 #pragma once
@@ -257,20 +256,20 @@ void screen3(){ // Data entry screen
         float wheel = GetMouseWheelMove();
         if (IsKeyDown(KEY_LEFT_CONTROL) && wheel != 0 )
         {
-             // Get the world point that is under the mouse
-            Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosWorld, camera);
+            // Get the world point that is under the mouse
+            // Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosWorld, camera);
 
-            camera.offset = mousePosWorld;
+            camera.offset = Vector2{sheet.x + sheet.width/2, sheet.y + sheet.height/2};
 
             // Set the target to match, so that the camera maps the world space point 
-            camera.target = mouseWorldPos;
+            camera.target = Vector2{sheet.x + sheet.width/2, sheet.y + sheet.height/2};
 
             // Zoom increment
             // Uses log scaling to provide consistent zoom speed
             float scale = 0.2f*wheel;
             camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.5f, 1.8f);
         }else if (wheel != 0 )
-        {
+        {   
             camera.target.y -= wheel * 20; // up and down movement
         }
         
@@ -285,6 +284,18 @@ void screen3(){ // Data entry screen
     // bottom -----------------------
     DrawRectangleRec(Rectangle {0,35,1950,35}, ui);
 
+    // sheet ui ------------------------
+    DrawRectangleRec(Rectangle {1775,950,125,50}, green);
+    DrawText("Commit", 1775+20, 950+10, 30, BLACK);
+    if( CheckCollisionPointRec(mousePosWorld, Rectangle {1775,950,125,50})){
+        DrawRectangleRec(Rectangle {1775,950,125,50}, (Color){0,0,0,100});
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            CommitChanges();
+        }
+    }
+
+    //lower bottom
+    DrawRectangleRec(Rectangle {0,1010,1950,35}, ui);     
     
 }
 

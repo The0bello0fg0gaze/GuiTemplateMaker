@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "libxl.h"
 #pragma once
 #include <iostream>
 #include <vector>
@@ -10,6 +11,7 @@ Color bg = {68,68,68,255};
 Color top = {57,57,57,255};
 Color ui = {113,113,113,255};
 Color red = {255,105,97,255};
+Color green = {144,238,144,255};
 Color slt = {255,255,255,50};
 std::string previousvalue = "common";
 int streditmaxval = 20;
@@ -163,10 +165,10 @@ void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool 
         }
     }
     if(data.int_data.at(0)){
-        DrawRectangle(Text_Box.x, Text_Box.y, 80, 25, (Color){144,238,144,255});
+        DrawRectangle(Text_Box.x, Text_Box.y, 80, 25, green);
         DrawText(" TRUE ", Text_Box.x, Text_Box.y+3, 20, BLACK);
     }else{
-        DrawRectangle(Text_Box.x, Text_Box.y, 80, 25, (Color){255,105,97,255});
+        DrawRectangle(Text_Box.x, Text_Box.y, 80, 25, red);
         DrawText(" FALSE ", Text_Box.x, Text_Box.y+3, 20, BLACK);
     }
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
@@ -207,6 +209,10 @@ void Uplode(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         }
     }
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
+}
+
+void CommitChanges(){
+    
 }
 
 // private functions :---
