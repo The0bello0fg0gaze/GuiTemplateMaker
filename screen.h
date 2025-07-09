@@ -106,6 +106,7 @@ void screen1(){  //Main menu screen
                     DrawRectangleRec(rect, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         *TempPos = (8*y)+x;
+                        cout << *TempPos << endl;
                         *screen = 3;                         // feed data to the exel using templte son click here 
                         ifstream Format((format_folder+Templates.at(*TempPos)+".txt").c_str());
                         string s;
@@ -114,6 +115,7 @@ void screen1(){  //Main menu screen
                             FileFormat.push_back(s);
                         }
                         Format.close();
+                        ReadEnable = true; // enable reading from the file
                     }
                 }
             }
@@ -538,6 +540,7 @@ void tempmenu(Rectangle temp){
             camera.zoom = 1.0f;
             camera.target = Vector2{0,0};
             camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+            ReadEnable = true; // enable reading from the file
         }
     }else if(CheckCollisionPointRec(mousePosWorld, edit)){ // EDIT
         DrawRectangleRec(edit, slt);
@@ -553,6 +556,7 @@ void tempmenu(Rectangle temp){
                 FileFormat.push_back(s);
             }
             Format.close();
+            ReadEnable = true; // enable reading from the file
         }
     }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
         DrawRectangleRec(del, slt);
@@ -587,9 +591,9 @@ void CreateBlankTemp(){
     fstream file; // Object of fstream class
     file.open(format_folder+temp+".txt", ios::out); // Open file "test.txt" in out(write) mode
     if (!file) { // If file is not created, return error
-        std::cout << "Error in file creation!" << format_folder+temp+".txt" << std::endl;
+        std::cout << "---Error in file creation!" << format_folder+temp+".txt" << std::endl;
     } else {
-        std::cout << "File Creation successful." << format_folder+temp+".txt" << std::endl;
+        std::cout << "---File Creation successful." << format_folder+temp+".txt" << std::endl;
     }
     file.close();
     
@@ -598,6 +602,7 @@ void CreateBlankTemp(){
 // Close all the files
 
 void CloseFormatFile(){
+    std::cout << "---Closing format file\n";
     std::fstream file;
     file.open(TextFormat("Templates/Formats/%s", (Templates.at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
@@ -607,9 +612,10 @@ void CloseFormatFile(){
         }
         file.close(); // Close the file after writing
     } else {
-        std::cout << "Unable to open file FileFormat\n";
+        std::cout << "---Unable to open file FileFormat\n";
     }
     SheetUiData.clear(); // clear the vector of objects
+    FileFormat.clear(); // clear the vector of strings
 }
 
 // Copy the ui objects from the vector to FileFormat
@@ -617,7 +623,7 @@ void CloseFormatFile(){
 void CopyUiObjects(){
     std::cout << "Copying UI objects to FileFormat\n";
     if (SheetUiData.empty()) {
-        std::cout << "No UI objects to copy.\n";
+        std::cout << "---No UI objects to copy.\n";
         return;
     }
     FileFormat.clear();

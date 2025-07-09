@@ -162,6 +162,6 @@ void CloseFiles(){
         }
         file.close(); // Close the file after writing
     } else {
-        std::cout << "Unable to open file Templates\n";
+        std::cout << "---Unable to open file Templates\n";
     }
 }
