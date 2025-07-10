@@ -25,6 +25,7 @@ void CloseFormatFile();
 void ShowFileFormatEditMode(Rectangle sheet);
 void CopyUiObjects();
 void ShowFileFormatDataEntryMode(Rectangle sheet);
+void CommitChanges();
 
 const int screenWidth = GetScreenWidth();
 const int screenHeight = GetScreenHeight();
@@ -40,6 +41,8 @@ int *TempPos;
 
 bool ReadEnable = true;
 bool TempMenu;
+
+string Name;
 
 vector<UiElements> SheetUiData; 
 vector<string> Templates; // track the files that we have
@@ -160,9 +163,13 @@ void screen2(){ // Edit template screen
         ReadEnable = true;
         CopyUiObjects();
         CloseFormatFile();
+        if(Name != Templates[*TempPos]){ // if the name has been changed
+            remove((format_folder+Templates[*TempPos]+".txt").c_str()); // delete the old file
+            Templates[*TempPos] = Name; // update the name in the templates vector
+            
+        }
     }
     Rectangle sheet =  {700,200,600,800};   
-    string Name = Templates[*TempPos];
     BeginMode2D(camera);
         DrawRectangleRec(sheet, slt); // edit mode
         
@@ -171,12 +178,12 @@ void screen2(){ // Edit template screen
             DrawRectangle(sheet.x,sheet.y,sheet.width,30, slt);
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 stredit = true;
-                streditvalue = &Templates[*TempPos];
+                streditvalue = &Name;
                 streditmaxval = 20;
             }
         }
         
-        if(ReadEnable){LoadFileFormat(sheet);}
+        if(ReadEnable){LoadFileFormat();}
         ShowFileFormatEditMode(sheet);
         updateui(mousePosWorld);
 
@@ -239,7 +246,7 @@ void screen3(){ // Data entry screen
     Rectangle sheet =  {700,200,600,800};   
     string Name = Templates[*TempPos];
 
-    if(ReadEnable){LoadFileFormat(sheet);}
+    if(ReadEnable){LoadFileFormat();}
     updateui(mousePosWorld);
 
     BeginMode2D(camera);
@@ -320,7 +327,30 @@ void screen4(){ // Data view screen
 
 // Functions in use
 //load the file format from the file and store it in a vector of objects
-void LoadFileFormat(Rectangle sheet){
+void CommitChanges() {
+    // Save the current state of the UI elements
+    for (const auto& element : SheetUiData) {
+        // Save each element's data
+        if(element.tag == "text_field") {
+            // Save text field data
+            // For example, you might save it to a file or database
+        } else if(element.tag == "dropdown") {
+            // Save dropdown data
+        } else if(element.tag == "checkbox") {
+            // Save checkbox data
+        } else if(element.tag == "radio") {
+            // Save radio button data
+        } else if(element.tag == "toggle") {
+            // Save toggle switch data
+        } else if(element.tag == "date") {
+            // Save date picker data
+        } else if(element.tag == "uplode") {
+            // Save upload data
+        }
+    }
+}
+
+void LoadFileFormat(){
     string tag;
     vector<string> data;
     string format;
@@ -557,6 +587,7 @@ void tempmenu(Rectangle temp){
             }
             Format.close();
             ReadEnable = true; // enable reading from the file
+            Name = Templates[*TempPos];
         }
     }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
         DrawRectangleRec(del, slt);

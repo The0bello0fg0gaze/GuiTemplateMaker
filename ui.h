@@ -14,12 +14,16 @@ Color ui = {113,113,113,255};
 Color red = {255,105,97,255};
 Color green = {144,238,144,255};
 Color slt = {255,255,255,50};
+
+std::vector<std::vector<std::string>> SheetData;
 std::string previousvalue = "common";
 int streditmaxval = 20;
 bool stredit = false;
 std::string* streditvalue = &previousvalue; // pointer to the string that is being edited
 int streditlowerlimit = 32;
 int streditupperlimit = 125;
+
+
 class UiElements{
     public:
     std::vector<std::string> options;
@@ -210,37 +214,6 @@ void Uplode(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
         }
     }
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
-}
-
-void CommitChanges() {
-    namespace fs = std::filesystem;
-
-    // Step 1: Construct the file path
-    fs::path exeDir = fs::current_path();                  // Executable's working directory
-    fs::path filePath = exeDir / "xlx" / "my_scores.xlsx"; // Target Excel file
-
-    libxl::Book* book = xlCreateXMLBook();          // For .xlsx files
-
-    // Step 2: Check if file exists
-    if (fs::exists(filePath)) {
-        if (book->load(filePath.string().c_str())) {
-            libxl::Sheet* sheet = book->getSheet(0); // Get first sheet
-            int row = sheet->lastRow();              // Append at last row
-            sheet->writeStr(row, 0, "Rishav");
-            sheet->writeNum(row, 1, 88);             // New score entry
-        }
-    } else {
-        fs::create_directory(exeDir / "xlx");         // Create folder if needed
-        libxl::Sheet* sheet = book->addSheet("MySheet");
-        sheet->writeStr(0, 0, "Name");
-        sheet->writeStr(0, 1, "Score");
-        sheet->writeStr(1, 0, "Rishav");
-        sheet->writeNum(1, 1, 99);                    // First entry
-    }
-
-    // Step 3: Save and release
-    book->save(filePath.string().c_str());
-    book->release();
 }
 
 // private functions :---
