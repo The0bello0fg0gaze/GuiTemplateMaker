@@ -68,6 +68,8 @@ void Text_Field(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
             stredit = true;
             streditvalue = &data.str_data[0];
             streditmaxval = 40;
+            streditlowerlimit = 32;
+            streditupperlimit = 125;
         }
     }
     DrawRectangleLinesEx(Text_Box, thickness, BLACK);
@@ -96,6 +98,8 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
                     stredit = true;
                     streditvalue = &data.options[i];
                     streditmaxval = 40;
+                    streditlowerlimit = 32;
+                    streditupperlimit = 125;
                 }
             }
         }
@@ -125,6 +129,8 @@ void CheckBox(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
                     stredit = true;
                     streditvalue = &data.options[i];
                     streditmaxval = 40;
+                    streditlowerlimit = 32;
+                    streditupperlimit = 125;
                 }
         }
         if(data.int_data[i]){
@@ -150,6 +156,8 @@ void Radio(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool e
                     stredit = true;
                     streditvalue = &data.options[i];
                     streditmaxval = 40;
+                    streditlowerlimit = 32;
+                    streditupperlimit = 125;
                 }
         }
         if(data.int_data[i]){
@@ -181,8 +189,7 @@ void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool 
 
 void Date(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float x = Sheet.x,  y = Sheet.y + Pos*30+15;
-    std::vector<std::string>& string = data.str_data;
-    float spacing = (float)string[1].size()*13;
+    float spacing = (float)data.str_data[1].size()*13;
     DrawText(Title.c_str(), x+15, y, 20, BLACK);
     x +=  Title.size()*16;
     Rectangle Day = {x ,y ,spacing+5 ,25};
@@ -192,7 +199,7 @@ void Date(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
             stredit = true;
             streditlowerlimit = 45;
             streditupperlimit = 58;
-            streditvalue = &string[1];
+            streditvalue = &data.str_data[1];
             streditmaxval = 10;
         }
     }

@@ -133,9 +133,23 @@ int main(void)
         if(CheckCollisionPointRec(GetMousePosition(), Exit)){ 
             DrawRectangleRec(Exit, Color {0,0,0,50});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                CloseFiles();
-                CloseFormatFile();
-                CloseWindow();
+                if(screen == 1){
+                    CloseFiles();
+                    CloseFormatFile();
+                    CloseWindow();
+                }else{
+                    screen = 1;
+                    camera.zoom = 1.0f; 
+                    camera.target = Vector2{0,0};
+                    camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+                    ReadEnable = true;
+                    CopyUiObjects();
+                    CloseFormatFile();
+                    if(Name != Templates[TempPos]){ // if the name has been changed
+                        remove((format_folder+Templates[TempPos]+".txt").c_str()); // delete the old file
+                        Templates[TempPos] = Name; // update the name in the templates vector
+                    }
+                }
             }
         }
 

@@ -8,6 +8,7 @@
 #include <iostream>
 
 using namespace std;
+static int GetTruePos(std::vector<int> &int_data);
 
 void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images);
 void screen1();
@@ -20,7 +21,7 @@ void screen2();
 void CreateBlankTemp();
 void tempmenu(Rectangle temp);
 void EditOptions();
-void LoadFileFormat(Rectangle sheet);
+void LoadFileFormat();
 void CloseFormatFile();
 void ShowFileFormatEditMode(Rectangle sheet);
 void CopyUiObjects();
@@ -39,6 +40,7 @@ vector<Texture2D> Images;
 int *screen;
 int *TempPos;
 
+bool delperm = false; // delete permission
 bool ReadEnable = true;
 bool TempMenu;
 
@@ -109,7 +111,6 @@ void screen1(){  //Main menu screen
                     DrawRectangleRec(rect, slt);
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         *TempPos = (8*y)+x;
-                        cout << *TempPos << endl;
                         *screen = 3;                         // feed data to the exel using templte son click here 
                         ifstream Format((format_folder+Templates.at(*TempPos)+".txt").c_str());
                         string s;
@@ -126,6 +127,37 @@ void screen1(){  //Main menu screen
     }
     DrawText(" New + ", NewTemplate.x+(NewTemplate.width / 2)-30, NewTemplate.y+(NewTemplate.height/2), 20, WHITE);
     
+    if(delperm){
+        Rectangle del = {800,450,350,200};
+        Rectangle Yes = {del.x+25,del.y+125,125,50};
+        Rectangle No = {del.x+200,del.y+125,125,50};
+        DrawRectangleRec(del, GRAY);
+        DrawText("Are you sure you want to \n delete this template?", del.x+45, del.y+25, 20, BLACK);
+        DrawRectangleRec(Yes, slt);
+        DrawText("Yes", Yes.x+40, Yes.y+10, 20, BLACK);
+        DrawRectangleRec(No, slt);
+        DrawText("No", No.x+40, No.y+10, 20, BLACK);
+        if(CheckCollisionPointRec(mousePosWorld, Yes)){
+            DrawRectangleRec(Yes, (Color){0,0,0,200});
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                if (remove((format_folder+Templates.at(*TempPos)+".txt").c_str()) == 0) { //delete the file
+                    std::cout << "File deleted successfully." << std::endl;
+                } else {
+                    perror("Failed to delete file");
+                }
+                
+                Templates.erase(Templates.begin()+*TempPos);
+                TempMenu = false;
+                delperm = false;
+            }
+        }else if(CheckCollisionPointRec(mousePosWorld, No)){
+            DrawRectangleRec(No, (Color){0,0,0,200});
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                delperm = false;
+            }
+        }
+    }
+
     if(TempMenu == 1){
                 tempmenu(TempMenuRect);
     }
@@ -180,6 +212,8 @@ void screen2(){ // Edit template screen
                 stredit = true;
                 streditvalue = &Name;
                 streditmaxval = 20;
+                streditlowerlimit = 32;
+                streditupperlimit = 125;
             }
         }
         
@@ -259,6 +293,8 @@ void screen3(){ // Data entry screen
                 stredit = true;
                 streditvalue = &Templates[*TempPos];
                 streditmaxval = 20;
+                streditlowerlimit = 32;
+                streditupperlimit = 125;
             }
         }
         
@@ -328,24 +364,57 @@ void screen4(){ // Data view screen
 // Functions in use
 //load the file format from the file and store it in a vector of objects
 void CommitChanges() {
+    std::vector<string> data;
     // Save the current state of the UI elements
     for (const auto& element : SheetUiData) {
         // Save each element's data
         if(element.tag == "text_field") {
             // Save text field data
-            // For example, you might save it to a file or database
+            data.push_back(element.str_data[0]);
+
         } else if(element.tag == "dropdown") {
             // Save dropdown data
+            std::vector<int> int_data = element.int_data;
+            int pos = GetTruePos(int_data);
+            if(pos == -1){
+                data.push_back("NULL");
+            }else{
+                data.push_back(element.options[pos]);
+            }
+
         } else if(element.tag == "checkbox") {
             // Save checkbox data
+            std::vector<int> int_data = element.int_data;
+            for(int i=1; i < (int)int_data.size(); i++){
+                if(int_data[i]){
+                    data.push_back(element.options[i-1]);
+                }
+            }
+
         } else if(element.tag == "radio") {
             // Save radio button data
+            std::vector<int> int_data = element.int_data;
+            int pos = GetTruePos(int_data);
+            if(pos == -1){
+                data.push_back("NULL");
+            }else{
+                data.push_back(element.options[pos]);
+            }
+
         } else if(element.tag == "toggle") {
             // Save toggle switch data
+            std::vector<int> int_data = element.int_data;
+            if(int_data[0]){
+                data.push_back("TRUE");
+            } else {
+                data.push_back("FALSE");
+            }
         } else if(element.tag == "date") {
             // Save date picker data
+
         } else if(element.tag == "uplode") {
             // Save upload data
+
         }
     }
 }
@@ -592,14 +661,7 @@ void tempmenu(Rectangle temp){
     }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
         DrawRectangleRec(del, slt);
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            if (remove((format_folder+Templates.at(*TempPos)+".txt").c_str()) == 0) { //delete the file
-                std::cout << "File deleted successfully." << std::endl;
-            } else {
-                perror("Failed to delete file");
-            }
-            
-            Templates.erase(Templates.begin()+*TempPos);
-            TempMenu = false;
+            delperm = true; // set the delete permission to true
         }
     }//check if the menu button has not been clicked
     else if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !CheckCollisionPointRec(mousePosWorld, (Rectangle){temp.x+90,temp.y-15,70,125})) { 
@@ -666,4 +728,14 @@ void CopyUiObjects(){
         }
         FileFormat.push_back(data.tag+","+templatedata);
     }
+}
+
+// static functions
+static int GetTruePos(std::vector<int> &int_data){
+    for(int i=1; i < (int)int_data.size(); i++){
+        if(int_data[i] == 1){
+            return i-1;
+        }
+    }
+    return -1; // Default to the first option if none are selected
 }
