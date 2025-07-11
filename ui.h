@@ -189,21 +189,47 @@ void Toggle(Rectangle Sheet, int Pos, std::string Title, UiElements &data, bool 
 
 void Date(Rectangle Sheet, int Pos, std::string Title, UiElements &data){
     float x = Sheet.x,  y = Sheet.y + Pos*30+15;
-    float spacing = (float)data.str_data[1].size()*13;
     DrawText(Title.c_str(), x+15, y, 20, BLACK);
     x +=  Title.size()*16;
-    Rectangle Day = {x ,y ,spacing+5 ,25};
+    Rectangle Day = {x ,y ,30 ,25};
+    Rectangle Month = {x+40  + 15,y ,30 ,25};
+    Rectangle Year = {x+80 + 30,y ,50 ,25};
     if(CheckCollisionPointRec(MousePosWorld, Day)){
         DrawRectangleRec(Day,slt);
-        if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)){
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             stredit = true;
             streditlowerlimit = 45;
-            streditupperlimit = 58;
+            streditupperlimit = 57;
             streditvalue = &data.str_data[1];
-            streditmaxval = 10;
+            streditmaxval = 2;
+        }
+    }else if(CheckCollisionPointRec(MousePosWorld, Month)){
+        DrawRectangleRec(Month,slt);
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            stredit = true;
+            streditlowerlimit = 45;
+            streditupperlimit = 57;
+            streditvalue = &data.str_data[2];
+            streditmaxval = 2;
+        }
+    }else if(CheckCollisionPointRec(MousePosWorld, Year)){
+        DrawRectangleRec(Year,slt);
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            stredit = true;
+            streditlowerlimit = 45;
+            streditupperlimit = 57;
+            streditvalue = &data.str_data[3];
+            streditmaxval = 4;
         }
     }
-    DrawText(data.str_data[1].c_str(), x+5, y, 20, BLACK);           // make it take data from date format
+    DrawRectangleLinesEx(Day, 1, BLACK);
+    DrawText("/", Month.x-20, y, 20, BLACK);
+    DrawRectangleLinesEx(Month, 1, BLACK);
+    DrawText("/", Year.x-20, y, 20, BLACK);
+    DrawRectangleLinesEx(Year, 1, BLACK);
+    DrawText(data.str_data[1].c_str(), Day.x+5, y, 20, BLACK);           // DD
+    DrawText(data.str_data[2].c_str(), Month.x+5, y, 20, BLACK);           // MM
+    DrawText(data.str_data[3].c_str(), Year.x+5, y, 20, BLACK);           // YYYY
 }
 
 void Uplode(Rectangle Sheet, int Pos, std::string Title, UiElements &data){

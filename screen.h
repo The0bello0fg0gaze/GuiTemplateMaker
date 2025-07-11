@@ -81,7 +81,7 @@ void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string
     Images = images;
 }
 
-void screen1(){  //Main menu screen
+void screen1(){  //Main menu screenf    l    
     Rectangle NewTemplate = {75,120,150,200};
     
     BeginMode2D(camera);
