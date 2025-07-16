@@ -32,6 +32,7 @@ const int screenWidth = GetScreenWidth();
 const int screenHeight = GetScreenHeight();
 const char* templates_file = "Templates/templates.txt";
 const char* format_folder = "Templates/Formats/";
+const char* data_folder = "Templates/Data/";
 
 // -------------------------------------- Variable ---------------------------------------------------------
 Camera2D camera;
@@ -410,15 +411,57 @@ void CommitChanges() {
                 data.push_back("FALSE");
             }
         } else if(element.tag == "date") {
-            // Save date picker data
+            // Save date picker date
+            string date = element.str_data[1] + "-" + element.str_data[2] + "-" + element.str_data[3];
+            data.push_back(date);
 
         } else if(element.tag == "uplode") {
             // Save upload data
+            data.push_back(element.str_data[0]);
 
         }
     }
+    SheetData.push_back(data); // Store the data in the SheetData vector
 }
 
+void GetSheetData() {
+    libxl::Book* book = xlCreateXMLBook();
+    vector<string> Data;
+    string filePath = data_folder + Templates[*TempPos] + ".xlsx";
+    if (book && book->load(filePath.c_str())) {
+        libxl::Sheet* Sheet = book->getSheet(0);
+        for (int row = Sheet->firstRow(); row < Sheet->lastRow(); ++row) {
+            Data.clear(); // Clear the data for each row
+            for (int col = Sheet->firstCol(); col < Sheet->lastCol(); ++col) {
+                libxl::CellType type = Sheet->cellType(row, col);
+                string val = Sheet->readStr(row, col);
+                Data.push_back(val);
+            }
+            SheetData.push_back(Data); // Store the data in the SheetData vector
+        }
+    }
+    else {
+        book->save(filePath.c_str()); // Save the file if it doesn't exist
+        std::cerr << "Failed to load the file." << std::endl;
+    }
+    book->release();
+    // Note: Ensure to link against the libxl library and include its headers.
+}
+
+void CloseSheetData() {
+    libxl::Book* book = xlCreateXMLBook();
+    vector<string> Data;
+    string filePath = data_folder + Templates[*TempPos] + ".xlsx";
+    book->save(filePath.c_str()); // Save the file if it doesn't exist
+    libxl::Sheet* sheet = book->addSheet("Sheet1");
+    for(int i = 0; i < (int)SheetData.size(); i++){
+        for(int j = 0; j < (int)SheetData[0].size(); j++){
+            sheet->writeStr(i, j, SheetData[i][j].c_str());
+        }
+    }
+    book->release();
+    SheetData.clear(); // Clear the entire vector
+}
 void LoadFileFormat(){
     string tag;
     vector<string> data;

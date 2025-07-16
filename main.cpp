@@ -134,8 +134,6 @@ int main(void)
             DrawRectangleRec(Exit, Color {0,0,0,50});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 if(screen == 1){
-                    CloseFiles();
-                    CloseFormatFile();
                     CloseWindow();
                 }else{
                     screen = 1;
