@@ -27,6 +27,8 @@ void ShowFileFormatEditMode(Rectangle sheet);
 void CopyUiObjects();
 void ShowFileFormatDataEntryMode(Rectangle sheet);
 void CommitChanges();
+void GetSheetData();
+void CloseSheetData();
 
 const int screenWidth = GetScreenWidth();
 const int screenHeight = GetScreenHeight();
@@ -121,6 +123,7 @@ void screen1(){  //Main menu screenf    l
                         }
                         Format.close();
                         ReadEnable = true; // enable reading from the file
+                        GetSheetData();
                     }
                 }
             }
@@ -275,13 +278,16 @@ void screen3(){ // Data entry screen
         ReadEnable = true;
         CopyUiObjects();
         CloseFormatFile();
+        CloseSheetData();
             
     }
 
     Rectangle sheet =  {700,200,600,800};   
     string Name = Templates[*TempPos];
 
-    if(ReadEnable){LoadFileFormat();}
+    if(ReadEnable){
+        LoadFileFormat();
+    }
     updateui(mousePosWorld);
 
     BeginMode2D(camera);
@@ -336,6 +342,7 @@ void screen3(){ // Data entry screen
     if( CheckCollisionPointRec(mousePosWorld, Rectangle {1775,950,125,50})){
         DrawRectangleRec(Rectangle {1775,950,125,50}, (Color){0,0,0,100});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            DrawRectangleRec(Rectangle {1775,950,125,50}, (Color){0,0,0,150});
             CommitChanges();
         }
     }
@@ -428,12 +435,12 @@ void GetSheetData() {
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
     string filePath = data_folder + Templates[*TempPos] + ".xlsx";
+    cout << filePath << endl;
     if (book && book->load(filePath.c_str())) {
         libxl::Sheet* Sheet = book->getSheet(0);
         for (int row = Sheet->firstRow(); row < Sheet->lastRow(); ++row) {
             Data.clear(); // Clear the data for each row
             for (int col = Sheet->firstCol(); col < Sheet->lastCol(); ++col) {
-                libxl::CellType type = Sheet->cellType(row, col);
                 string val = Sheet->readStr(row, col);
                 Data.push_back(val);
             }
@@ -441,6 +448,7 @@ void GetSheetData() {
         }
     }
     else {
+        book->addSheet("Sheet1"); // Create a new sheet if the file doesn't exist
         book->save(filePath.c_str()); // Save the file if it doesn't exist
         std::cerr << "Failed to load the file." << std::endl;
     }
@@ -456,12 +464,13 @@ void CloseSheetData() {
     libxl::Sheet* sheet = book->addSheet("Sheet1");
     for(int i = 0; i < (int)SheetData.size(); i++){
         for(int j = 0; j < (int)SheetData[0].size(); j++){
-            sheet->writeStr(i, j, SheetData[i][j].c_str());
+            sheet->writeStr(i+1, j+1, SheetData[i][j].c_str());
         }
     }
     book->release();
     SheetData.clear(); // Clear the entire vector
 }
+
 void LoadFileFormat(){
     string tag;
     vector<string> data;
@@ -757,7 +766,6 @@ void CloseFormatFile(){
 // Copy the ui objects from the vector to FileFormat
 
 void CopyUiObjects(){
-    std::cout << "Copying UI objects to FileFormat\n";
     if (SheetUiData.empty()) {
         std::cout << "---No UI objects to copy.\n";
         return;
