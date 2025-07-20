@@ -86,7 +86,7 @@ void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string
 
 void screen1(){  //Main menu screenf    l    
     Rectangle NewTemplate = {75,120,150,200};
-    
+    updateui(GetMousePosition());
     BeginMode2D(camera);
     DrawRectangleRec(NewTemplate, ui);
     
@@ -434,23 +434,30 @@ void CommitChanges() {
 void GetSheetData() {
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
-    string filePath = data_folder + Templates[*TempPos] + ".xlsx";
+    string filePath = main_filepath + data_folder + Templates[*TempPos] + ".xlsx";
     cout << filePath << endl;
-    if (book && book->load(filePath.c_str())) {
-        libxl::Sheet* Sheet = book->getSheet(0);
-        for (int row = Sheet->firstRow(); row < Sheet->lastRow(); ++row) {
-            Data.clear(); // Clear the data for each row
-            for (int col = Sheet->firstCol(); col < Sheet->lastCol(); ++col) {
-                string val = Sheet->readStr(row, col);
-                Data.push_back(val);
+    if (book) {
+        if(book->load(filePath.c_str())){
+            libxl::Sheet* Sheet = book->getSheet(0);
+            for (int row = Sheet->firstRow(); row < Sheet->lastRow(); ++row) {
+                Data.clear(); // Clear the data for each row
+                for (int col = Sheet->firstCol(); col < Sheet->lastCol(); ++col) {
+                    if(Sheet->readStr(row, col) != nullptr){
+                        cout << Sheet->readStr(row, col) << endl;
+                        string val = Sheet->readStr(row, col);
+                        Data.push_back(val);
+                    }
+                }
+                SheetData.push_back(Data); // Store the data in the SheetData vector
             }
-            SheetData.push_back(Data); // Store the data in the SheetData vector
+        }else{
+            cout << "Failed to load the file: " << book->errorMessage() << endl;
+            book->addSheet("Sheet1"); // Create a new sheet if the file doesn't exist
+            book->save(filePath.c_str()); // Save the file if it doesn't exist
         }
-    }
-    else {
-        book->addSheet("Sheet1"); // Create a new sheet if the file doesn't exist
-        book->save(filePath.c_str()); // Save the file if it doesn't exist
-        std::cerr << "Failed to load the file." << std::endl;
+    }else {
+        cout << "Failed to create book" << endl;
+        return;
     }
     book->release();
     // Note: Ensure to link against the libxl library and include its headers.

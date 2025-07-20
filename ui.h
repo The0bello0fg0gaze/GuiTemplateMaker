@@ -7,7 +7,8 @@
 #include <string>
 
 static void SetOneTrue(std::vector<int> &int_data, int pos);
-
+static void SwitchAllSlash(std::string &str);
+std::string main_filepath = std::filesystem::current_path().string() + "/"; // Get the current working directory
 Color bg = {68,68,68,255};
 Color top = {57,57,57,255};
 Color ui = {113,113,113,255};
@@ -50,6 +51,7 @@ class UiElements{
 
 Vector2 MousePosWorld;
 void updateui(Vector2 mousepos){
+    SwitchAllSlash(main_filepath);
     MousePosWorld = mousepos;
 }
 
@@ -256,6 +258,14 @@ static void SetOneTrue(std::vector<int> &int_data, int pos){
             int_data[i] = 0;
         }else{
             int_data[i] = !int_data[i];
+        }
+    }
+}
+
+static void SwitchAllSlash(std::string &str){
+    for(int i=0; i < (int)str.size(); i++){
+        if(str[i] == '\\'){
+            str[i] = '/';
         }
     }
 }
