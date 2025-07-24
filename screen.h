@@ -435,7 +435,6 @@ void GetSheetData() {
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
     string filePath = main_filepath + data_folder + Templates[*TempPos] + ".xlsx";
-    cout << filePath << endl;
     if (book) {
         if(book->load(filePath.c_str())){
             libxl::Sheet* Sheet = book->getSheet(0);
@@ -452,7 +451,11 @@ void GetSheetData() {
             }
         }else{
             cout << "Failed to load the file: " << book->errorMessage() << endl;
-            book->addSheet("Sheet1"); // Create a new sheet if the file doesn't exist
+            libxl::Sheet* sheet = book->addSheet("Sheet1"); // Create a new sheet if the file doesn't exist
+            sheet->writeStr(0, 0, "Name");
+            sheet->writeStr(0, 1, "Score");
+            sheet->writeStr(1, 0, "Rishav");
+            sheet->writeNum(1, 1, 99);
             book->save(filePath.c_str()); // Save the file if it doesn't exist
         }
     }else {

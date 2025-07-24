@@ -135,9 +135,9 @@ int main(void)
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 if(screen == 1){
                     CloseWindow();
-                }else{
+                }else if(screen == 2){
                     screen = 1;
-                    camera.zoom = 1.0f; 
+                    camera.zoom = 1.0f;
                     camera.target = Vector2{0,0};
                     camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
                     ReadEnable = true;
@@ -146,7 +146,18 @@ int main(void)
                     if(Name != Templates[TempPos]){ // if the name has been changed
                         remove((format_folder+Templates[TempPos]+".txt").c_str()); // delete the old file
                         Templates[TempPos] = Name; // update the name in the templates vector
+            
                     }
+                }else if(screen == 3 || screen == 4){
+                    screen = 1;
+                    camera.zoom = 1.0f; 
+                    camera.target = Vector2{0,0};
+                    camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+                    ReadEnable = true;
+                    CopyUiObjects();
+                    CloseFormatFile();
+                    CloseSheetData();
+
                 }
             }
         }
