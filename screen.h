@@ -44,6 +44,7 @@ int *screen;
 int *TempPos;
 
 bool delperm = false; // delete permission
+bool commit = false; // commit changes
 bool ReadEnable = true;
 bool TempMenu;
 
@@ -325,6 +326,35 @@ void screen3(){ // Data entry screen
             camera.target.y -= wheel * 20; // up and down movement
         }
         
+        if(commit){
+        Rectangle del = {1000,450,350,200};
+        Rectangle Yes = {del.x+25,del.y+125,125,50};
+        Rectangle No = {del.x+200,del.y+125,125,50};
+        DrawRectangleRec(del, GRAY);
+        DrawText("Are you sure you want to \n Commit this template?", del.x+45, del.y+25, 20, BLACK);
+        DrawRectangleRec(Yes, slt);
+        DrawText("Yes", Yes.x+40, Yes.y+10, 20, BLACK);
+        DrawRectangleRec(No, slt);
+        DrawText("No", No.x+40, No.y+10, 20, BLACK);
+        if(CheckCollisionPointRec(mousePosWorld, Yes)){
+            DrawRectangleRec(Yes, (Color){0,0,0,200});
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                try{
+                    CommitChanges();
+                } catch (const std::exception& e) {
+                    std::cerr << "Error committing changes: " << e.what() << std::endl;
+                } catch (...) {
+                    std::cerr << "Error: While Committing Unknown" << std::endl;
+                }
+                commit = false;
+            }
+        }else if(CheckCollisionPointRec(mousePosWorld, No)){
+            DrawRectangleRec(No, (Color){0,0,0,200});
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                commit = false;
+            }
+        }
+    }
         
     ShowFileFormatDataEntryMode(sheet);         
     EndMode2D();
@@ -343,7 +373,7 @@ void screen3(){ // Data entry screen
         DrawRectangleRec(Rectangle {1775,950,125,50}, (Color){0,0,0,100});
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             DrawRectangleRec(Rectangle {1775,950,125,50}, (Color){0,0,0,150});
-            CommitChanges();
+            commit = true; // ask for commit permission
         }
     }
 
@@ -439,10 +469,9 @@ void GetSheetData() {
         if(book->load(filePath.c_str())){
             libxl::Sheet* Sheet = book->getSheet(0);
             for (int row = Sheet->firstRow(); row < Sheet->lastRow(); ++row) {
-                Data.clear(); // Clear the data for each row
+                Data.clear();
                 for (int col = Sheet->firstCol(); col < Sheet->lastCol(); ++col) {
                     if(Sheet->readStr(row, col) != nullptr){
-                        cout << Sheet->readStr(row, col) << endl;
                         string val = Sheet->readStr(row, col);
                         Data.push_back(val);
                     }
@@ -451,34 +480,44 @@ void GetSheetData() {
             }
         }else{
             cout << "Failed to load the file: " << book->errorMessage() << endl;
-            libxl::Sheet* sheet = book->addSheet("Sheet1"); // Create a new sheet if the file doesn't exist
-            sheet->writeStr(0, 0, "Name");
-            sheet->writeStr(0, 1, "Score");
-            sheet->writeStr(1, 0, "Rishav");
-            sheet->writeNum(1, 1, 99);
-            book->save(filePath.c_str()); // Save the file if it doesn't exist
+            libxl::Sheet* sheet = book->addSheet("Sheet1");
+            sheet->writeStr(1, 1, "Name");
+            sheet->writeStr(1, 2, "Score");
+            sheet->writeStr(2, 1, "Rishav");
+            sheet->writeNum(2, 2, 99);
+            book->save(filePath.c_str());
         }
     }else {
         cout << "Failed to create book" << endl;
+        book->release();
         return;
     }
     book->release();
-    // Note: Ensure to link against the libxl library and include its headers.
 }
 
 void CloseSheetData() {
+    cout << "Running CloseSheetData()";
+    string filePath = data_folder + Templates[*TempPos] + ".xlsx";
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
-    string filePath = data_folder + Templates[*TempPos] + ".xlsx";
-    book->save(filePath.c_str()); // Save the file if it doesn't exist
-    libxl::Sheet* sheet = book->addSheet("Sheet1");
-    for(int i = 0; i < (int)SheetData.size(); i++){
-        for(int j = 0; j < (int)SheetData[0].size(); j++){
-            sheet->writeStr(i+1, j+1, SheetData[i][j].c_str());
-        }
+    libxl::Sheet* sheet = book->addSheet(Templates[*TempPos].c_str());
+    if(book == nullptr){
+        cout << " -- CloseSheetData(): Failed to create book: " << book->errorMessage() << endl;
+        return;
     }
+    if(sheet != nullptr){
+        for(int i = 0; i < (int)SheetData.size(); i++){
+            for(int j = 0; j < (int)SheetData.at(i).size(); j++){
+                sheet->writeStr(i+1, j+1, SheetData.at(i).at(j).c_str());
+            }
+        }
+    }else{
+        cout << " -- CloseSheetData(): Failed to get sheet: " << book->errorMessage() << endl;
+    }
+    book->save(filePath.c_str());
     book->release();
-    SheetData.clear(); // Clear the entire vector
+    SheetData.clear();
+    cout << " -- successfull." << endl;
 }
 
 void LoadFileFormat(){
@@ -536,8 +575,7 @@ void ShowFileFormatDataEntryMode(Rectangle sheet){
 }
 
 // show ui elements in edit mode screen 2
-
-void ShowFileFormatEditMode(Rectangle sheet){
+    void ShowFileFormatEditMode(Rectangle sheet){
     for (int pos = (int)SheetUiData.size()-1; pos >= 0; pos--) {
         UiElements& data = SheetUiData.at(pos);
         std::string tag = data.tag;
