@@ -95,7 +95,10 @@ void DropDown(Rectangle Sheet, int Pos, std::string Title, UiElements &data, boo
             DrawText(data.options[i].c_str(), Dropdown.x+(Width/2)-data.options[i].size()*12,Dropdown.y, 20, BLACK);
             if(CheckCollisionPointRec(MousePosWorld, Dropdown)){ 
                 DrawRectangleRec(Dropdown, (Color){0,0,0,150});
-                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) SetOneTrue(data.int_data, i);
+                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                    SetOneTrue(data.int_data, i);
+                    data.int_data[0] = 0; // close when an option is selected
+                }
                 else if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && edit){
                     stredit = true;
                     streditvalue = &data.options[i];

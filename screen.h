@@ -123,7 +123,7 @@ void screen1(){  //Main menu screenf    l
                             FileFormat.push_back(s);
                         }
                         Format.close();
-                        ReadEnable = true; // enable reading from the file
+                        LoadFileFormat();
                         GetSheetData();
                     }
                 }
@@ -327,7 +327,7 @@ void screen3(){ // Data entry screen
         }
         
         if(commit){
-        Rectangle del = {1000,450,350,200};
+        Rectangle del = {1400,450,350,200};
         Rectangle Yes = {del.x+25,del.y+125,125,50};
         Rectangle No = {del.x+200,del.y+125,125,50};
         DrawRectangleRec(del, GRAY);
@@ -462,13 +462,19 @@ void CommitChanges() {
 }
 
 void GetSheetData() {
+    cout << "Running GetSheetData()";
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
     string filePath = main_filepath + data_folder + Templates[*TempPos] + ".xlsx";
     if (book) {
         if(book->load(filePath.c_str())){
             libxl::Sheet* Sheet = book->getSheet(0);
-            for (int row = Sheet->firstRow(); row < Sheet->lastRow(); ++row) {
+            for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
+                Data.push_back(SheetUiData.at(pos).tag);
+            }
+            SheetData.clear(); // Clear previous data
+            SheetData.push_back(Data); // Store the header row
+            for (int row = Sheet->firstRow()+1; row < Sheet->lastRow(); ++row) {
                 Data.clear();
                 for (int col = Sheet->firstCol(); col < Sheet->lastCol(); ++col) {
                     if(Sheet->readStr(row, col) != nullptr){
@@ -479,20 +485,17 @@ void GetSheetData() {
                 SheetData.push_back(Data); // Store the data in the SheetData vector
             }
         }else{
-            cout << "Failed to load the file: " << book->errorMessage() << endl;
+            cout << "-- Failed to load the file: " << book->errorMessage() << endl;
             libxl::Sheet* sheet = book->addSheet("Sheet1");
-            sheet->writeStr(1, 1, "Name");
-            sheet->writeStr(1, 2, "Score");
-            sheet->writeStr(2, 1, "Rishav");
-            sheet->writeNum(2, 2, 99);
             book->save(filePath.c_str());
         }
     }else {
-        cout << "Failed to create book" << endl;
+        cout << " -- Failed to create book" << endl;
         book->release();
         return;
     }
     book->release();
+    cout << "-- successful." << endl;
 }
 
 void CloseSheetData() {
@@ -575,7 +578,7 @@ void ShowFileFormatDataEntryMode(Rectangle sheet){
 }
 
 // show ui elements in edit mode screen 2
-    void ShowFileFormatEditMode(Rectangle sheet){
+void ShowFileFormatEditMode(Rectangle sheet){
     for (int pos = (int)SheetUiData.size()-1; pos >= 0; pos--) {
         UiElements& data = SheetUiData.at(pos);
         std::string tag = data.tag;
@@ -795,7 +798,7 @@ void CreateBlankTemp(){
 // Close all the files
 
 void CloseFormatFile(){
-    std::cout << "---Closing format file\n";
+    std::cout << "Running CloseFormatFile()";
     std::fstream file;
     file.open(TextFormat("Templates/Formats/%s", (Templates.at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
@@ -805,10 +808,11 @@ void CloseFormatFile(){
         }
         file.close(); // Close the file after writing
     } else {
-        std::cout << "---Unable to open file FileFormat\n";
+        std::cout << "-- Unable to open file FileFormat ";
     }
     SheetUiData.clear(); // clear the vector of objects
     FileFormat.clear(); // clear the vector of strings
+    std::cout << "-- successful." << std::endl;
 }
 
 // Copy the ui objects from the vector to FileFormat
