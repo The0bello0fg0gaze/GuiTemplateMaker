@@ -148,7 +148,7 @@ int main(void)
                         Templates[TempPos] = Name; // update the name in the templates vector
             
                     }
-                }else if(screen == 3 || screen == 4){
+                }else if(screen == 3){
                     screen = 1;
                     camera.zoom = 1.0f; 
                     camera.target = Vector2{0,0};
@@ -158,6 +158,12 @@ int main(void)
                     CloseFormatFile();
                     CloseSheetData();
 
+                }else if(screen == 4){
+                    screen = 1;
+                    camera.zoom = 1.0f; 
+                    camera.target = Vector2{0,0};
+                    camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
+                    CloseSheetData();
                 }
             }
         }

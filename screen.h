@@ -388,9 +388,18 @@ void screen4(){ // Data view screen
         camera.zoom = 1.0f; 
         camera.target = Vector2{0,0};
         camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
-            
+        CloseSheetData();        
     }
-    //top --------------------------s
+
+    for(vector<string> &row : SheetData){
+        for(int x = 0; x < (int)row.size(); x++){
+            float x_pos = 100 + x * 200;
+            float y_pos = 100 + (&row - &SheetData[0]) * 30; // calculate y position based on row index
+            DrawText(row.at(x).c_str(), x_pos, y_pos, 20, BLACK);
+        }
+    }
+
+    //top --------------------------
     DrawRectangleRec(Rectangle {0,0,1950,35}, top);
     DrawRectangleRec(Exit, red);
     DrawText("x", Exit.x+20, Exit.y+10, 20, WHITE);
@@ -523,7 +532,8 @@ void CloseSheetData() {
     cout << " -- successfull." << endl;
 }
 
-void LoadFileFormat(){
+// Create a vector of sheet ui objects to store the file format that will run when adding the data to exel sheet. <Runs when ReadEnable is true>
+void LoadFileFormat(){ 
     string tag;
     vector<string> data;
     string format;
@@ -742,7 +752,7 @@ void tempmenu(Rectangle temp){
             camera.zoom = 1.0f;
             camera.target = Vector2{0,0};
             camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
-            ReadEnable = true; // enable reading from the file
+            GetSheetData(); // load the data from the exel file
         }
     }else if(CheckCollisionPointRec(mousePosWorld, edit)){ // EDIT
         DrawRectangleRec(edit, slt);
@@ -815,7 +825,7 @@ void CloseFormatFile(){
     std::cout << "-- successful." << std::endl;
 }
 
-// Copy the ui objects from the vector to FileFormat
+// Copy the ui objects from the vector SheetUiData to FileFormat
 
 void CopyUiObjects(){
     if (SheetUiData.empty()) {
