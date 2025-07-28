@@ -51,7 +51,7 @@ bool TempMenu;
 string Name;
 
 vector<UiElements> SheetUiData; 
-vector<string> Templates; // track the files that we have
+vector<string>* Templates; // track the files that we have
 Vector2 mousePosWorld;
 vector<string> FileFormat; //store the current file loaded
 
@@ -74,7 +74,7 @@ void update(Vector2 mousepos){
 }
 
 // update varibale once
-void set(Rectangle exit ,bool &tempmenu ,vector<string> &templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images){
+void set(Rectangle exit ,bool &tempmenu ,vector<string> *templates,vector<string> &fileformat, Camera2D &Camera, int *Screen, int *tempPos, vector<Texture2D> &images){
     TempPos = tempPos;
     Exit = exit;
     TempMenu = tempmenu;
@@ -90,17 +90,17 @@ void screen1(){  //Main menu screenf    l
     updateui(GetMousePosition());
     BeginMode2D(camera);
     DrawRectangleRec(NewTemplate, ui);
-    
-    for (int y = 0; y <= int(Templates.size() / 8); y++){
+
+    for (int y = 0; y <= int(Templates->size() / 8); y++){
         for (int x = 0; x <= 7; x++){
-            if((y!=0 || x!=0)&& (8*y)+x < int(Templates.size())){
+            if((y!=0 || x!=0)&& (8*y)+x < int(Templates->size())){
                 // vector<vector<Rectangle>>
                 Rectangle rect = {(float)225*x+75,(float)250*y+120,(float)150,200};
                 Rectangle menu = {(float)rect.x+128,(float)rect.y,(float)22,18};
                 DrawRectangleRec(rect, ui);
                 DrawTexture(Images.at(0), menu.x, menu.y, ui);
-                DrawText(Templates.at(8*y+x).c_str(), rect.x+25, rect.y+100, 20, WHITE);  // temp
-            
+                DrawText(Templates->at(8*y+x).c_str(), rect.x+25, rect.y+100, 20, WHITE);  // temp
+
                 //check if the menu button has  been clicked
                 if(CheckCollisionPointRec(mousePosWorld, menu)){
                     DrawRectangleRec(menu, slt);
@@ -116,7 +116,7 @@ void screen1(){  //Main menu screenf    l
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         *TempPos = (8*y)+x;
                         *screen = 3;                         // feed data to the exel using templte son click here 
-                        ifstream Format((format_folder+Templates.at(*TempPos)+".txt").c_str());
+                        ifstream Format((format_folder+Templates->at(*TempPos)+".txt").c_str());
                         string s;
                         FileFormat.clear();
                         while(getline(Format, s)){
@@ -145,13 +145,14 @@ void screen1(){  //Main menu screenf    l
         if(CheckCollisionPointRec(mousePosWorld, Yes)){
             DrawRectangleRec(Yes, (Color){0,0,0,200});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                if (remove((format_folder+Templates.at(*TempPos)+".txt").c_str()) == 0) { //delete the file
-                    std::cout << "File deleted successfully." << std::endl;
+                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0 && remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0) { //delete the file
+                    Templates->erase(Templates->begin()+*TempPos);
+                    std::cout << "-- File deleted successfully." << data_folder+Templates->at(*TempPos)+".xlsx" << std::endl;
                 } else {
-                    perror("Failed to delete file");
+                    std::cout << "Failed to delete file" <<data_folder+Templates->at(*TempPos)+".xlsx"<< std::endl;
                 }
-                
-                Templates.erase(Templates.begin()+*TempPos);
+
+                Templates->erase(Templates->begin()+*TempPos);
                 TempMenu = false;
                 delperm = false;
             }
@@ -175,8 +176,8 @@ void screen1(){  //Main menu screenf    l
     }
     float wheel = GetMouseWheelMove()*40;
     if(wheel != 0 ){
-        camera.target.y = Clamp(camera.target.y - wheel, 0, int(Templates.size() / 8)*250);
-        NewTemplate.y = Clamp(NewTemplate.y - wheel, 0, int(Templates.size() / 8)*250);
+        camera.target.y = Clamp(camera.target.y - wheel, 0, int(Templates->size() / 8)*250);
+        NewTemplate.y = Clamp(NewTemplate.y - wheel, 0, int(Templates->size() / 8)*250);
     }
     
     EndMode2D();
@@ -200,10 +201,10 @@ void screen2(){ // Edit template screen
         ReadEnable = true;
         CopyUiObjects();
         CloseFormatFile();
-        if(Name != Templates[*TempPos]){ // if the name has been changed
-            remove((format_folder+Templates[*TempPos]+".txt").c_str()); // delete the old file
-            Templates[*TempPos] = Name; // update the name in the templates vector
-            
+        if(Name != Templates->at(*TempPos)){ // if the name has been changed
+            remove((format_folder+Templates->at(*TempPos)+".txt").c_str()); // delete the old file
+            Templates->at(*TempPos) = Name; // update the name in the templates vector
+
         }
     }
     Rectangle sheet =  {700,200,600,800};   
@@ -284,7 +285,7 @@ void screen3(){ // Data entry screen
     }
 
     Rectangle sheet =  {700,200,600,800};   
-    string Name = Templates[*TempPos];
+    string Name = Templates->at(*TempPos);
 
     if(ReadEnable){
         LoadFileFormat();
@@ -299,7 +300,7 @@ void screen3(){ // Data entry screen
             DrawRectangle(sheet.x,sheet.y,sheet.width,30, slt);
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 stredit = true;
-                streditvalue = &Templates[*TempPos];
+                streditvalue = &Templates->at(*TempPos);
                 streditmaxval = 20;
                 streditlowerlimit = 32;
                 streditupperlimit = 125;
@@ -474,12 +475,12 @@ void GetSheetData() {
     cout << "Running GetSheetData()";
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
-    string filePath = main_filepath + data_folder + Templates[*TempPos] + ".xlsx";
+    string filePath = main_filepath + data_folder + Templates->at(*TempPos) + ".xlsx";
     if (book) {
         if(book->load(filePath.c_str())){
             libxl::Sheet* Sheet = book->getSheet(0);
             for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
-                Data.push_back(SheetUiData.at(pos).tag);
+                Data.push_back(SheetUiData.at(pos).str_data[0]);
             }
             SheetData.clear(); // Clear previous data
             SheetData.push_back(Data); // Store the header row
@@ -509,10 +510,10 @@ void GetSheetData() {
 
 void CloseSheetData() {
     cout << "Running CloseSheetData()";
-    string filePath = data_folder + Templates[*TempPos] + ".xlsx";
+    string filePath = data_folder + Templates->at(*TempPos) + ".xlsx";
     libxl::Book* book = xlCreateXMLBook();
     vector<string> Data;
-    libxl::Sheet* sheet = book->addSheet(Templates[*TempPos].c_str());
+    libxl::Sheet* sheet = book->addSheet(Templates->at(*TempPos).c_str());
     if(book == nullptr){
         cout << " -- CloseSheetData(): Failed to create book: " << book->errorMessage() << endl;
         return;
@@ -761,7 +762,7 @@ void tempmenu(Rectangle temp){
             camera.zoom = 1.0f;
             camera.target = Vector2{0,0};
             camera.offset = Vector2{(float)screenWidth/2,(float)screenHeight/2};
-            ifstream Format((format_folder+Templates.at(*TempPos)+".txt").c_str());
+            ifstream Format((format_folder+Templates->at(*TempPos)+".txt").c_str());
             string s;
             FileFormat.clear();
             while(getline(Format, s)){
@@ -769,7 +770,7 @@ void tempmenu(Rectangle temp){
             }
             Format.close();
             ReadEnable = true; // enable reading from the file
-            Name = Templates[*TempPos];
+            Name = Templates->at(*TempPos);
         }
     }else if(CheckCollisionPointRec(mousePosWorld, del)){ //DELETE
         DrawRectangleRec(del, slt);
@@ -786,13 +787,13 @@ void tempmenu(Rectangle temp){
 
 void CreateBlankTemp(){
     //check of the value
-    string temp = TextFormat("Unames%i",(int)Templates.size());
-    for(int i=0; i<(int)Templates.size(); i++){
-        if(!Templates[i].compare(temp)){
-            temp = TextFormat("Unames%i",(int)(Templates.size()+1));
+    string temp = TextFormat("Unames%i",(int)Templates->size());
+    for(int i=0; i<(int)Templates->size(); i++){
+        if(!Templates->at(i).compare(temp)){
+            temp = TextFormat("Unames%i",(int)(Templates->size()+1));
         }
     }
-    Templates.push_back(temp);
+    Templates->push_back(temp);
     
     fstream file; // Object of fstream class
     file.open(format_folder+temp+".txt", ios::out); // Open file "test.txt" in out(write) mode
@@ -810,7 +811,7 @@ void CreateBlankTemp(){
 void CloseFormatFile(){
     std::cout << "Running CloseFormatFile()";
     std::fstream file;
-    file.open(TextFormat("Templates/Formats/%s", (Templates.at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
+    file.open(TextFormat("Templates->/Formats/%s", (Templates->at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
     if (file.is_open()) {
         for(int i=0; i<(int)FileFormat.size(); i++){

@@ -7,3 +7,6 @@ test: test.cpp
 	echo "compileation done"
 	./test.exe
 	cmd /c start test.xlsx
+
+run:
+	./main.exe

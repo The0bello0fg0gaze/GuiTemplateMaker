@@ -82,7 +82,7 @@ int main(void)
     //permanents
     Rectangle Exit = {1870,3,60,30};
     // Main game loop
-    set(Exit, TempMenu ,Templates, FileFormat, camera, &screen, &TempPos, Images);
+    set(Exit, TempMenu ,&Templates, FileFormat, camera, &screen, &TempPos, Images);
     while (true)    // Detect window close button or ESC key
     {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
@@ -182,15 +182,18 @@ int main(void)
 
 // close all the template files 
 void CloseFiles(){
+    cout << "Running CloseFiles()";
     std::fstream file;
     file.open(templates_file, std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
     if (file.is_open()) {
-        for(int i=0; i<(int)Templates.size(); i++){
-            file << Templates.at(i) << "\n";
+        for(int i=0; i<(int)Templates->size(); i++){
+            file << Templates->at(i) << "\n";
         }
         file.close(); // Close the file after writing
     } else {
         std::cout << "---Unable to open file Templates\n";
     }
+    Templates->clear(); // clear the vector of templates
+    std::cout << "-- successful." << std::endl;
 }

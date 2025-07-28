@@ -1,7 +1,0 @@
-toggle,Male,
-radio,Sex,Male ,Female ,
-dropdown,Hospital,Zirakpur,Rajpura,
-dropdown,Town,Mohali,Patiala,
-checkbox,Certificates,None ,Gods_Born ,
-checkbox,Hearing,100 ,50 ,
-radio,Eye,21/21 ,20/20 ,
