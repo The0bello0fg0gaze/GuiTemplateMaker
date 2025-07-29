@@ -134,6 +134,7 @@ int main(void)
             DrawRectangleRec(Exit, Color {0,0,0,50});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 if(screen == 1){
+                    CloseFiles();
                     CloseWindow();
                 }else if(screen == 2){
                     screen = 1;
@@ -189,11 +190,16 @@ void CloseFiles(){
     if (file.is_open()) {
         for(int i=0; i<(int)Templates->size(); i++){
             file << Templates->at(i) << "\n";
+            cout << Templates->at(i) << "\n";
         }
         file.close(); // Close the file after writing
+        Templates->clear(); // clear the vector of templates
+        std::cout << "-- successful." << std::endl;
+        return;
     } else {
         std::cout << "---Unable to open file Templates\n";
     }
+    file.close(); // Close the file if it was not opened
     Templates->clear(); // clear the vector of templates
-    std::cout << "-- successful." << std::endl;
+    std::cout << "-- reached end without writing." << std::endl;
 }

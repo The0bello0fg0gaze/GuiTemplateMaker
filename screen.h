@@ -145,14 +145,16 @@ void screen1(){  //Main menu screenf    l
         if(CheckCollisionPointRec(mousePosWorld, Yes)){
             DrawRectangleRec(Yes, (Color){0,0,0,200});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0 && remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0) { //delete the file
+                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0 && 
+                remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0) 
+                { //delete the file
                     Templates->erase(Templates->begin()+*TempPos);
-                    std::cout << "-- File deleted successfully." << data_folder+Templates->at(*TempPos)+".xlsx" << std::endl;
+                    std::cout << "-- File deleted successfully. " << data_folder+Templates->at(*TempPos)+".xlsx" << std::endl;
                 } else {
-                    std::cout << "Failed to delete file" <<data_folder+Templates->at(*TempPos)+".xlsx"<< std::endl;
+                    int text1 = remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0;
+                    int text2 = remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0;
+                    cout << "-- Failed to delete file: " << Templates->at(*TempPos)<< ":" << text1 << ":" << text2 << endl;
                 }
-
-                Templates->erase(Templates->begin()+*TempPos);
                 TempMenu = false;
                 delperm = false;
             }
@@ -496,7 +498,7 @@ void GetSheetData() {
             }
         }else{
             cout << "-- Failed to load the file: " << book->errorMessage() << endl;
-            libxl::Sheet* sheet = book->addSheet("Sheet1");
+            libxl::Sheet* sheet = book->addSheet("Sheet1"); // needed for proper save
             book->save(filePath.c_str());
         }
     }else {
@@ -817,13 +819,14 @@ void CloseFormatFile(){
         for(int i=0; i<(int)FileFormat.size(); i++){
             file << FileFormat[i] << "\n";
         }
-        file.close(); // Close the file after writing
+        file.close();
+        std::cout << "-- successful." << std::endl;
     } else {
+        file.close(); 
         std::cout << "-- Unable to open file FileFormat ";
     }
     SheetUiData.clear(); // clear the vector of objects
     FileFormat.clear(); // clear the vector of strings
-    std::cout << "-- successful." << std::endl;
 }
 
 // Copy the ui objects from the vector SheetUiData to FileFormat
