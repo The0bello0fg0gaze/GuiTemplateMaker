@@ -145,14 +145,14 @@ void screen1(){  //Main menu screenf    l
         if(CheckCollisionPointRec(mousePosWorld, Yes)){
             DrawRectangleRec(Yes, (Color){0,0,0,200});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0 && 
+                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0 || 
                 remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0) 
                 { //delete the file
                     Templates->erase(Templates->begin()+*TempPos);
-                    std::cout << "-- File deleted successfully. " << data_folder+Templates->at(*TempPos)+".xlsx" << std::endl;
+                    std::cout << "-- File deleted successfully. " << std::endl;
                 } else {
-                    int text1 = remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0;
-                    int text2 = remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0;
+                    int text1 = remove((format_folder+Templates->at(*TempPos)+".txt").c_str());
+                    int text2 = remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str());
                     cout << "-- Failed to delete file: " << Templates->at(*TempPos)<< ":" << text1 << ":" << text2 << endl;
                 }
                 TempMenu = false;
@@ -789,6 +789,7 @@ void tempmenu(Rectangle temp){
 
 void CreateBlankTemp(){
     //check of the value
+    cout << "Running CreateBlankTemp()";
     string temp = TextFormat("Unames%i",(int)Templates->size());
     for(int i=0; i<(int)Templates->size(); i++){
         if(!Templates->at(i).compare(temp)){
@@ -805,7 +806,8 @@ void CreateBlankTemp(){
         std::cout << "---File Creation successful." << format_folder+temp+".txt" << std::endl;
     }
     file.close();
-    
+    std::cout << " -- Template created: " << temp << std::endl;
+
 }
 
 // Close all the files
@@ -813,6 +815,7 @@ void CreateBlankTemp(){
 void CloseFormatFile(){
     std::cout << "Running CloseFormatFile()";
     std::fstream file;
+    cout << TextFormat("Templates->/Formats/%s", (Templates->at(*TempPos)+".txt").c_str()) << endl;
     file.open(TextFormat("Templates->/Formats/%s", (Templates->at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
     if (file.is_open()) {
@@ -823,7 +826,7 @@ void CloseFormatFile(){
         std::cout << "-- successful." << std::endl;
     } else {
         file.close(); 
-        std::cout << "-- Unable to open file FileFormat ";
+        std::cout << "-- Unable to open file FileFormat " << std::endl;
     }
     SheetUiData.clear(); // clear the vector of objects
     FileFormat.clear(); // clear the vector of strings
@@ -832,8 +835,10 @@ void CloseFormatFile(){
 // Copy the ui objects from the vector SheetUiData to FileFormat
 
 void CopyUiObjects(){
+
+    std::cout << "Running CopyUiObjects()";
     if (SheetUiData.empty()) {
-        std::cout << "---No UI objects to copy.\n";
+        std::cout << "---No UI objects to copy.\n" << std::endl;
         return;
     }
     FileFormat.clear();
@@ -845,6 +850,7 @@ void CopyUiObjects(){
         }
         FileFormat.push_back(data.tag+","+templatedata);
     }
+    std::cout << "-- successful." << std::endl;
 }
 
 // static functions
