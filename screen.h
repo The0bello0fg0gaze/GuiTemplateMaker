@@ -481,8 +481,12 @@ void GetSheetData() {
     if (book) {
         if(book->load(filePath.c_str())){
             libxl::Sheet* Sheet = book->getSheet(0);
-            for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
-                Data.push_back(SheetUiData.at(pos).str_data[0]);
+            if(Sheet->isEmpty()){
+                cout << " -- The sheet is empty, creating a new one." << endl;
+                Sheet = book->addSheet(Templates->at(*TempPos).c_str());
+                for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
+                    Data.push_back(SheetUiData.at(pos).str_data[0]);
+                }
             }
             SheetData.clear(); // Clear previous data
             SheetData.push_back(Data); // Store the header row
@@ -815,8 +819,7 @@ void CreateBlankTemp(){
 void CloseFormatFile(){
     std::cout << "Running CloseFormatFile()";
     std::fstream file;
-    cout << TextFormat("Templates->/Formats/%s", (Templates->at(*TempPos)+".txt").c_str()) << endl;
-    file.open(TextFormat("Templates->/Formats/%s", (Templates->at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
+    file.open(TextFormat("Templates/Formats/%s", (Templates->at(*TempPos)+".txt").c_str()), std::ios::out | std::ios::trunc); // Open file for writing and truncate if it exists
 
     if (file.is_open()) {
         for(int i=0; i<(int)FileFormat.size(); i++){
