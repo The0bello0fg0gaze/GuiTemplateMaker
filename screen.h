@@ -145,18 +145,22 @@ void screen1(){  //Main menu screenf    l
         if(CheckCollisionPointRec(mousePosWorld, Yes)){
             DrawRectangleRec(Yes, (Color){0,0,0,200});
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0 || 
-                remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0) 
-                { //delete the file
-                    Templates->erase(Templates->begin()+*TempPos);
-                    std::cout << "-- File deleted successfully. " << std::endl;
-                } else {
-                    int text1 = remove((format_folder+Templates->at(*TempPos)+".txt").c_str());
-                    int text2 = remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str());
-                    cout << "-- Failed to delete file: " << Templates->at(*TempPos)<< ":" << text1 << ":" << text2 << endl;
+                cout << "-- Deleting Template: " << Templates->at(*TempPos) << endl;
+                if (remove((format_folder+Templates->at(*TempPos)+".txt").c_str()) == 0){
+                    std::cout << "  -- Text File deleted successfully. " << std::endl;
+                }else{
+                    cout << "   -- Text File Failed to delete: " << (format_folder+Templates->at(*TempPos)+".txt") << endl;
                 }
+                if (remove((data_folder+Templates->at(*TempPos)+".xlsx").c_str()) == 0) 
+                { 
+                    std::cout << "  -- Excel File deleted successfully. " << std::endl;
+                }else{
+                    cout << "   -- Excel File Failed to delete : " << (data_folder+Templates->at(*TempPos)+".xlsx") << endl;
+                }
+                Templates->erase(Templates->begin()+*TempPos);
                 TempMenu = false;
                 delperm = false;
+                cout << " -- Deleting Process Complete:" << endl;
             }
         }else if(CheckCollisionPointRec(mousePosWorld, No)){
             DrawRectangleRec(No, (Color){0,0,0,200});
@@ -481,7 +485,7 @@ void GetSheetData() {
     if (book) {
         if(book->load(filePath.c_str())){
             libxl::Sheet* Sheet = book->getSheet(0);
-            if(Sheet->isEmpty()){
+            if(Sheet->lastRow() == 0 && Sheet->lastCol() == 0){
                 cout << " -- The sheet is empty, creating a new one." << endl;
                 Sheet = book->addSheet(Templates->at(*TempPos).c_str());
                 for (int pos = 0; pos < (int)SheetUiData.size(); pos++) {
